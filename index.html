@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engrish - Romeo & Juliet Revision</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation Tabs and Header -->
+        <header class="header blue-gradient">
+            <h1>Romeo & Juliet Revision</h1>
+            <p class="subtitle">Quizlet-Style Learning Platform</p>
+            <nav class="nav-tabs">
+                <button class="nav-btn active" data-section="study">Study Sets</button>
+                <button class="nav-btn" data-section="reading">Reading Guide</button>
+                <button class="nav-btn" data-section="learn">Learn</button>
+                <button class="nav-btn" data-section="flashcards">Flashcards</button>
+                <button class="nav-btn" data-section="write">Write</button>
+                <button class="nav-btn" data-section="test">Test</button>
+                <button class="nav-btn" data-section="progress">Progress</button>
+            </nav>
+        </header>
+        <main class="main-content">
+            <!-- Study Sets Section -->
+            <section id="study" class="section active">
+                <h2>📚 Study Sets</h2>
+                <div class="study-sets-grid">
+                    <div class="study-set-card">
+                        <div class="set-header">
+                            <h3>Literary Terms</h3>
+                            <span class="card-count">10 terms</span>
+                        </div>
+                        <p class="set-description">Essential vocabulary: irony, simile, conflict, feud, and more</p>
+                        <div class="set-buttons">
+                            <button class="btn btn-mini" onclick="startLearnMode(1)">Learn</button>
+                            <button class="btn btn-mini" onclick="startFlashcards(1)">Cards</button>
+                            <button class="btn btn-mini" onclick="startWriteMode(1)">Write</button>
+                        </div>
+                    </div>
+
+                    <div class="study-set-card">
+                        <div class="set-header">
+                            <h3>Grammar & Metaphor</h3>
+                            <span class="card-count">9 terms</span>
+                        </div>
+                        <p class="set-description">Metaphor components, sentence structure, and character traits</p>
+                        <div class="set-buttons">
+                            <button class="btn btn-mini" onclick="startLearnMode(2)">Learn</button>
+                            <button class="btn btn-mini" onclick="startFlashcards(2)">Cards</button>
+                            <button class="btn btn-mini" onclick="startWriteMode(2)">Write</button>
+                        </div>
+                    </div>
+
+                    <div class="study-set-card">
+                        <div class="set-header">
+                            <h3>Character Analysis</h3>
+                            <span class="card-count">10 terms</span>
+                        </div>
+                        <p class="set-description">Character descriptions and behavioral vocabulary</p>
+                        <div class="set-buttons">
+                            <button class="btn btn-mini" onclick="startLearnMode(3)">Learn</button>
+                            <button class="btn btn-mini" onclick="startFlashcards(3)">Cards</button>
+                            <button class="btn btn-mini" onclick="startWriteMode(3)">Write</button>
+                        </div>
+                    </div>
+
+                    <div class="study-set-card">
+                        <div class="set-header">
+                            <h3>Plot Questions</h3>
+                            <span class="card-count">10 questions</span>
+                        </div>
+                        <p class="set-description">Key scenes and character decisions from Acts 3-4</p>
+                        <div class="set-buttons">
+                            <button class="btn btn-mini" onclick="startLearnMode('plot')">Learn</button>
+                            <button class="btn btn-mini" onclick="startFlashcards('plot')">Cards</button>
+                            <button class="btn btn-mini" onclick="startWriteMode('plot')">Write</button>
+                        </div>
+                    </div>
+
+                    <div class="study-set-card">
+                        <div class="set-header">
+                            <h3>Thematic Vocabulary</h3>
+                            <span class="card-count">8 terms</span>
+                        </div>
+                        <p class="set-description">Fate, miscommunication, and character analysis</p>
+                        <div class="set-buttons">
+                            <button class="btn btn-mini" onclick="startLearnMode(5)">Learn</button>
+                            <button class="btn btn-mini" onclick="startFlashcards(5)">Cards</button>
+                            <button class="btn btn-mini" onclick="startWriteMode(5)">Write</button>
+                        </div>
+                    </div>
+
+                    <div class="study-set-card">
+                        <div class="set-header">
+                            <h3>Sonnets & Poetry</h3>
+                            <span class="card-count">10 concepts</span>
+                        </div>
+                        <p class="set-description">Shakespearean sonnet structure and analysis</p>
+                        <div class="set-buttons">
+                            <button class="btn btn-mini" onclick="startLearnMode(6)">Learn</button>
+                            <button class="btn btn-mini" onclick="startFlashcards(6)">Cards</button>
+                            <button class="btn btn-mini" onclick="startWriteMode(6)">Write</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reading Guide Section -->
+            <section id="reading" class="section">
+                <h2>📖 Part 1: Reading Revision</h2>
+                
+                <div class="reading-guide-container">
+                    <!-- Navigation for Reading Guide -->
+                    <div class="reading-nav">
+                        <button class="reading-nav-btn active" data-reading-section="summary">Play Summary</button>
+                        <button class="reading-nav-btn" data-reading-section="characters">Characters</button>
+                        <button class="reading-nav-btn" data-reading-section="themes">Themes</button>
+                        <button class="reading-nav-btn" data-reading-section="keylines">Key Lines</button>
+                        <button class="reading-nav-btn" data-reading-section="keyscenes">Key Scenes</button>
+                    </div>
+
+                    <!-- Summary Section -->
+                    <div id="summary" class="reading-section active">
+                        <div class="reading-section-header">
+                            <h3>Play Summary</h3>
+                            <div class="reading-action-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="startReadingGuideLearn('summary')">📚 Learn</button>
+                                <button class="btn btn-secondary btn-sm" onclick="startReadingGuideFlashcards('summary')">🎴 Cards</button>
+                            </div>
+                        </div>
+                        <div class="summary-intro">
+                            <h4>Quick Summary (2 Sentences)</h4>
+                            <p>Romeo Montague and Juliet Capulet, members of feuding families in Verona, fall in love at first sight and secretly marry. Their passionate love is ultimately destroyed by the ancient hatred between their families, leading to their tragic deaths and the final reconciliation of the warring houses.</p>
+                        </div>
+
+                        <h4>Five Key Events:</h4>
+                        <ol class="key-events-list">
+                            <li><strong>The Street Fight (I.1):</strong> Servants of the Montague and Capulet families clash in Verona's streets. The Prince threatens death to anyone who fights again.</li>
+                            <li><strong>The Balcony Scene (II.2):</strong> Romeo and Juliet meet at the Capulet party, fall in love instantly, and later pledge their love to each other on the balcony. They decide to marry.</li>
+                            <li><strong>Mercutio's Death (III.1):</strong> Romeo's best friend Mercutio is stabbed by Tybalt (Juliet's cousin). Enraged, Romeo kills Tybalt and is banished from Verona.</li>
+                            <li><strong>The Potion Plan (IV.3):</strong> Friar Laurence gives Juliet a potion to make her appear dead so she can escape to be with Romeo. She drinks it, and her family believes she is truly dead.</li>
+                            <li><strong>The Tragic Ending (V.3):</strong> Romeo, believing Juliet is dead, returns to Verona and kills himself in her tomb. Juliet awakens to find him dead and kills herself with his dagger.</li>
+                        </ol>
+
+                        <h4>Acts Summary:</h4>
+                        <div class="act-summary">
+                            <div class="act-box">
+                                <h5>Act I: The Meeting</h5>
+                                <p><strong>I.1:</strong> Street fight between servants. Prince warns of execution for further fighting. Romeo appears, lovesick.<br>
+                                <strong>I.2:</strong> Paris wants to marry Juliet. Romeo and Benvolio plan to crash the party.<br>
+                                <strong>I.3:</strong> Lady Capulet discusses Paris with Juliet.<br>
+                                <strong>I.4:</strong> Romeo, Benvolio, and Mercutio sneak into the party.<br>
+                                <strong>I.5:</strong> Romeo sees Juliet and falls instantly in love. Tybalt recognizes him but is restrained. Romeo and Juliet talk and discover they are enemies.</p>
+                            </div>
+                            <div class="act-box">
+                                <h5>Act II: The Secret Love</h5>
+                                <p><strong>II.1:</strong> Romeo's friends leave the party.<br>
+                                <strong>II.2:</strong> The famous balcony scene. Romeo and Juliet declare their love and plan to marry.<br>
+                                <strong>II.3:</strong> Romeo asks Friar Laurence to marry them; Friar hopes it will end the feud.<br>
+                                <strong>II.4:</strong> Tybalt threatens Romeo. Nurse tells Juliet of the marriage plan.<br>
+                                <strong>II.5:</strong> Nurse returns with marriage instructions. Juliet leaves immediately.<br>
+                                <strong>II.6:</strong> Romeo and Juliet marry in Friar's cell.</p>
+                            </div>
+                            <div class="act-box">
+                                <h5>Act III: The Tragedy Begins</h5>
+                                <p><strong>III.1:</strong> Street duel. Mercutio is stabbed by Tybalt and dies. Romeo kills Tybalt in revenge. Prince banishes Romeo.<br>
+                                <strong>III.2:</strong> Nurse tells Juliet about Tybalt's death and Romeo's banishment.<br>
+                                <strong>III.3:</strong> Romeo hides with Friar. Plans to go to Juliet, then flee to Mantua.<br>
+                                <strong>III.4:</strong> Capulet tells Juliet she will marry Paris in three days.<br>
+                                <strong>III.5:</strong> Juliet refuses Paris. Her parents furiously reject her disobedience.</p>
+                            </div>
+                            <div class="act-box">
+                                <h5>Act IV: The Desperate Plan</h5>
+                                <p><strong>IV.1:</strong> Friar Laurence gives Juliet a potion to appear dead so she can escape with Romeo.<br>
+                                <strong>IV.2:</strong> Juliet apologizes and agrees to marry Paris. Capulet moves wedding to the next day.<br>
+                                <strong>IV.3:</strong> Juliet drinks the potion, terrified of ghosts in the vault.<br>
+                                <strong>IV.4:</strong> Wedding preparations continue.<br>
+                                <strong>IV.5:</strong> Nurse cannot wake Juliet. Family grieves her death. Friar buries her in the vault.</p>
+                            </div>
+                            <div class="act-box">
+                                <h5>Act V: The Tragic End</h5>
+                                <p><strong>V.1:</strong> Balthasar tells Romeo that Juliet is dead. Romeo buys poison from an apothecary.<br>
+                                <strong>V.2:</strong> Friar John fails to deliver letter to Romeo. Friar plans to rescue Juliet from tomb.<br>
+                                <strong>V.3:</strong> Paris visits tomb. Romeo arrives and kills Paris. Romeo drinks poison and dies. Friar arrives as Juliet wakes. She kills herself. Families swear peace. Prince pronounces judgment.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Characters Section -->
+                    <div id="characters" class="reading-section">
+                        <div class="reading-section-header">
+                            <h3>Key Characters</h3>
+                            <div class="reading-action-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="startReadingGuideLearn('characters')">📚 Learn</button>
+                                <button class="btn btn-secondary btn-sm" onclick="startReadingGuideFlashcards('characters')">🎴 Cards</button>
+                            </div>
+                        </div>
+                        <div class="characters-grid">
+                            <div class="character-card">
+                                <h4>Prince Escales</h4>
+                                <p>The Prince of Verona. He appears at three structurally significant moments: the beginning, climax, and end. He serves as a voice of order in the chaos produced by the warring factions.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Romeo Montague</h4>
+                                <p>A Montague and the tragic hero of the play. Initially lovesick over Rosaline, he falls passionately in love with Juliet and becomes her secret husband. His impulsive actions drive the tragedy.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Juliet Capulet</h4>
+                                <p>A Capulet and the tragic heroine. Young, intelligent, and passionate, she defies her family for her love of Romeo. She shows remarkable courage and agency in planning her escape.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Mercutio</h4>
+                                <p>Romeo's close friend and a relative of the Prince. Brave, witty, and loyal, but quick-tempered and stubborn. His death in Act III marks the turning point toward tragedy.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Tybalt Capulet</h4>
+                                <p>Juliet's aggressive cousin who hates all Montagues. He challenges Romeo and kills Mercutio, leading to Romeo's revenge and banishment.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Friar Laurence</h4>
+                                <p>The confessor to both Romeo and Juliet. Though disapproving of their haste, he approves their marriage hoping it will end the feud. His actions, though well-intentioned, ultimately lead to disaster.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Lady Capulet</h4>
+                                <p>Juliet's mother. She does not enjoy a close relationship with her daughter and is quick to call for Romeo's death.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Lord Capulet</h4>
+                                <p>Juliet's father and head of the Capulet family. Initially more moderate than Tybalt, he becomes furiously angry when Juliet refuses to marry Paris.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>The Nurse</h4>
+                                <p>Juliet's companion who has raised her since infancy. A comedic character, she is practical but sometimes unreliable in her advice.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Benvolio Montague</h4>
+                                <p>Romeo's friend and a Montague. He attempts to keep the peace between the families and shows concern for Romeo's well-being.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Paris</h4>
+                                <p>A nobleman and relative of the Prince. He wishes to marry Juliet and represents the feudal ideal of marriage arranged between families.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Montague</h4>
+                                <p>Romeo's father and head of the Montague family. He appears briefly but his presence defines Romeo's family loyalty.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Themes Section -->
+                    <div id="themes" class="reading-section">
+                        <div class="reading-section-header">
+                            <h3>Key Themes</h3>
+                            <div class="reading-action-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="startReadingGuideLearn('themes')">📚 Learn</button>
+                                <button class="btn btn-secondary btn-sm" onclick="startReadingGuideFlashcards('themes')">🎴 Cards</button>
+                            </div>
+                        </div>
+                        <div class="themes-list">                                <h4>Paris</h4>
+                                <p>A nobleman and relative of the Prince. He wishes to marry Juliet and represents the feudal ideal of marriage arranged between families.</p>
+                            </div>
+                            <div class="character-card">
+                                <h4>Montague</h4>
+                                <p>Romeo's father and head of the Montague family. He appears briefly but his presence defines Romeo's family loyalty.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Themes Section -->
+                    <div id="themes" class="reading-section">
+                        <h3>Key Themes</h3>
+                        <div class="themes-list">
+                            <div class="theme-card">
+                                <h4>🎭 Individualism</h4>
+                                <p>The Renaissance ideal of the individual as the centre of their own authority is crucial. Both Romeo and Juliet dismiss the authority of their fathers and priests to follow their own path. This reflects Renaissance values that prioritized personal choice over medieval feudal obligations.</p>
+                            </div>
+                            <div class="theme-card">
+                                <h4>⚔️ Conflict</h4>
+                                <p>As Romeo and Juliet assert their individuality, conflict becomes central. Their free will clashes with the predetermined ideals of their society. The play structures around binary opposites: Montagues/Capulets, Love/Hate, Night/Day, feudal marriage/Renaissance love, and old generation/young generation authority.</p>
+                            </div>
+                            <div class="theme-card">
+                                <h4>🚫 Transgression</h4>
+                                <p>Where there is opposition, there is transgression. Both Romeo and Juliet transgress the societal code of Verona: Montagues and Capulets must hate each other. This transgression leads to disobedience as they challenge the honour code of their families.</p>
+                            </div>
+                            <div class="theme-card">
+                                <h4>💕 Love</h4>
+                                <p>The play debates different ideals of love. The Renaissance ideal of mutual, freely chosen love is championed over feudal marriage as a family institution. Shakespeare modernizes Petrarchan love by presenting mutual passion rather than silent suffering for an unobtainable woman.</p>
+                            </div>
+                            <div class="theme-card">
+                                <h4>⭐ Fate</h4>
+                                <p>Fate represents classical ideals that undermine Renaissance freedom of choice. Despite Romeo and Juliet's attempts at free will, the numerous omens and foreshadowing create a sense of tragic inevitability, making them "star-crossed lovers" destined for tragedy.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Lines Section -->
+                    <div id="keylines" class="reading-section">
+                        <h3>Key Lines with Analysis</h3>
+                        <div class="keylines-list">
+                            <div class="keyline-card">
+                                <div class="keyline-number">1</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"O brawling love, O loving hate"</p>
+                                    <p class="speaker">Romeo (Act 1, Scene 1)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Romeo expresses his confused feelings about love when infatuated with Rosaline.<br>
+                                        <strong>Technique:</strong> Oxymoron (contradictory terms)<br>
+                                        <strong>Meaning:</strong> Love and hate are opposite forces in conflict, reflecting the play's central binary opposition. This shows Romeo's emotional immaturity and foreshadows the greater conflict between love and the family feud.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">2</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"Under love's heavy burden do I sink"</p>
+                                    <p class="speaker">Romeo (Act 1, Scene 4)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Romeo continues to express Petrarchan attitudes about love early in the play.<br>
+                                        <strong>Technique:</strong> Metaphor<br>
+                                        <strong>Meaning:</strong> Love is portrayed as a physical weight that oppresses him, typical of medieval romance conventions that were becoming clichéd by Shakespeare's time.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">3</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"O I am fortune's fool!"</p>
+                                    <p class="speaker">Romeo (Act 3, Scene 1)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Romeo speaks after killing Tybalt and realizes he is banished.<br>
+                                        <strong>Technique:</strong> Exclamation and metaphor<br>
+                                        <strong>Meaning:</strong> Romeo believes himself a victim of fate and fortune, unable to control events. This reflects classical tragic philosophy conflicting with Renaissance ideals of individual agency.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">4</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"Then I defy you, stars!"</p>
+                                    <p class="speaker">Romeo (Act 5, Scene 1)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Romeo declares his determination after learning of Juliet's death.<br>
+                                        <strong>Technique:</strong> Direct address and defiant tone<br>
+                                        <strong>Meaning:</strong> Romeo asserts his free will and individual power against fate. This represents Renaissance ideals of human agency and self-determination, though his defiance ultimately cannot prevent tragedy.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">5</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"O sweet Juliet, thy beauty hath made me effeminate"</p>
+                                    <p class="speaker">Romeo (Act 3, Scene 1)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Romeo questions the power of love after refusing to fight Tybalt.<br>
+                                        <strong>Technique:</strong> Exclamation and accusation<br>
+                                        <strong>Meaning:</strong> Romeo perceives love as weakening his masculine warrior identity, reflecting Renaissance tensions between passion and duty, love and honour.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">6</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"Proud can I never be of what I hate!"</p>
+                                    <p class="speaker">Juliet (Act 3, Scene 5)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Juliet refuses to marry Paris, asserting her agency against her father.<br>
+                                        <strong>Technique:</strong> Direct statement with wordplay<br>
+                                        <strong>Meaning:</strong> Juliet's disobedience is presented positively as moral principle. She refuses false pride and insists on individual choice, a radical Renaissance ideal.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">7</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"Henceforward I am ever ruled by you"</p>
+                                    <p class="speaker">Juliet (Act 4, Scene 2)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Juliet pretends obedience to her father while secretly planning escape.<br>
+                                        <strong>Technique:</strong> Dramatic irony<br>
+                                        <strong>Meaning:</strong> Juliet uses deception as a tool of power, showing intelligence and agency. She privately maintains her independence even while appearing submissive.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">8</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"It is too rash, too unadvised, too sudden, too like…lightning"</p>
+                                    <p class="speaker">Juliet (Act 2, Scene 2)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Juliet expresses uncertainty about the speed of her love for Romeo.<br>
+                                        <strong>Technique:</strong> Anaphora (repetition) and simile<br>
+                                        <strong>Meaning:</strong> Despite her doubts, Juliet acknowledges the intensity and sudden nature of their love, which mirrors the play's rapid tragic arc.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">9</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"O happy dagger"</p>
+                                    <p class="speaker">Juliet (Act 5, Scene 3)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Juliet prepares to kill herself upon finding Romeo dead.<br>
+                                        <strong>Technique:</strong> Apostrophe (direct address) and oxymoron<br>
+                                        <strong>Meaning:</strong> Juliet views death as a form of happiness and reunion with Romeo. This tragic choice asserts her individual agency and love transcending death.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">10</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"Peace? I hate the word, / As I hate all, all Montagues"</p>
+                                    <p class="speaker">Tybalt (Act 1, Scene 1)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Tybalt expresses his commitment to the family feud.<br>
+                                        <strong>Technique:</strong> Direct statement with parallelism<br>
+                                        <strong>Meaning:</strong> Tybalt embodies the destructive power of family honour and feudal obligation. His absolute commitment to hate makes peace impossible.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="keyline-card">
+                                <div class="keyline-number">11</div>
+                                <div class="keyline-content">
+                                    <p class="quote">"Hang thee, young baggage, disobedient wretch!"</p>
+                                    <p class="speaker">Capulet (Act 3, Scene 5)</p>
+                                    <div class="keyline-analysis">
+                                        <strong>Context:</strong> Capulet responds with violent anger when Juliet refuses to marry Paris.<br>
+                                        <strong>Technique:</strong> Harsh imperatives and dehumanizing language<br>
+                                        <strong>Meaning:</strong> Capulet's extreme reaction shows how parental authority is threatened by Renaissance ideals of individual choice. His language reveals the violence underlying feudal family structures.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Key Scenes Section -->
+                    <div id="keyscenes" class="reading-section">
+                        <h3>Key Scenes Analysis</h3>
+                        <div class="scenes-list">
+                            <div class="scene-card">
+                                <h4>Act 1, Scene 5 – The First Meeting</h4>
+                                <p><strong>What happens:</strong> Romeo sees Juliet at the Capulet party and is immediately struck by her beauty. Tybalt recognizes Romeo but is restrained by Capulet. Romeo and Juliet talk, not knowing they are enemies.</p>
+                                <p><strong>Key quotation:</strong> "O, she doth teach the torches to burn bright! / It seems she hangs upon the cheek of night / Like a rich jewel in an Ethiope's ear"</p>
+                                <p><strong>Significance:</strong> This scene marks the beginning of the central love story. Shakespeare uses elaborate imagery to show Romeo's complete transformation from lovesickness over Rosaline to genuine love for Juliet. The meeting sets up the play's central tragedy.</p>
+                            </div>
+                            <div class="scene-card">
+                                <h4>Act 2, Scene 2 – The Balcony Scene</h4>
+                                <p><strong>What happens:</strong> Juliet stands on her balcony talking about Romeo when he reveals himself below. They declare their love and plan to marry.</p>
+                                <p><strong>Significance:</strong> This is the most famous scene in the play, representing the height of their romantic love. It moves beyond attraction to emotional connection. They commit to marriage despite knowing nothing of each other's families.</p>
+                            </div>
+                            <div class="scene-card">
+                                <h4>Act 3, Scene 1 – The Fatal Duel</h4>
+                                <p><strong>What happens:</strong> Tybalt challenges Romeo to a duel. Mercutio intervenes and is fatally stabbed. Romeo, enraged by his friend's death, kills Tybalt. The Prince arrives and banishes Romeo.</p>
+                                <p><strong>Significance:</strong> This turning point moves the play from comedy to tragedy. The death of Mercutio changes everything. Romeo's impetuousness in killing Tybalt dooms his marriage and life.</p>
+                            </div>
+                            <div class="scene-card">
+                                <h4>Act 3, Scene 5 – The Bedroom Scene</h4>
+                                <p><strong>What happens:</strong> Romeo and Juliet spend their wedding night together. As Romeo leaves for banishment, Juliet learns her parents plan her marriage to Paris. She refuses, leading to her father's violent anger.</p>
+                                <p><strong>Significance:</strong> This scene shows the impossible situation created by the feud. Juliet must choose between family honour and her true love. Her defiance is brave but ultimately leads to the plan with Friar Laurence.</p>
+                            </div>
+                            <div class="scene-card">
+                                <h4>Act 4, Scene 3 – The Potion</h4>
+                                <p><strong>What happens:</strong> Juliet, alone in her room, drinks the potion that will make her appear dead. She fears poison, ghosts in the vault, and being entombed alive with her dead relatives.</p>
+                                <p><strong>Key quotation:</strong> "I have a faint cold fear thrills through my veins, / That almost freezes up the heat of life"</p>
+                                <p><strong>Significance:</strong> This shows Juliet's courage and desperation. She chooses the unknown dangers of the potion over marriage to Paris. Her internal monologue reveals her intelligence and tragic knowledge of danger ahead.</p>
+                            </div>
+                            <div class="scene-card">
+                                <h4>Act 5, Scene 3 – The Tomb</h4>
+                                <p><strong>What happens:</strong> Romeo arrives at Juliet's tomb believing her dead. He kills Paris, drinks poison beside Juliet's body, and dies. Juliet awakens to find Romeo dead and kills herself with his dagger. The families arrive to discover the tragedy.</p>
+                                <p><strong>Significance:</strong> The catastrophic conclusion where the play's tragic inevitability is fulfilled. Both lovers die for love, and their deaths finally end the family feud. The tragedy achieves its full impact.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Learn Mode Section -->
+            <section id="learn" class="section">
+                <h2>📖 Learn Mode</h2>
+                <div id="learn-set-selector" class="learn-set-selector">
+                    <p style="margin-bottom: 20px; color: var(--text-secondary);">Select a study set to begin:</p>
+                    <div class="learn-set-buttons">
+                        <button class="learn-set-btn" onclick="startLearnMode(1)">📚 Week 1: Literary Terms</button>
+                        <button class="learn-set-btn" onclick="startLearnMode(2)">📚 Week 2: Grammar & Metaphor</button>
+                        <button class="learn-set-btn" onclick="startLearnMode(3)">📚 Week 3: Character Analysis</button>
+                        <button class="learn-set-btn" onclick="startLearnMode('plot')">🎭 Week 4: Plot Questions</button>
+                        <button class="learn-set-btn" onclick="startLearnMode(5)">📚 Week 5: Thematic Vocabulary</button>
+                        <button class="learn-set-btn" onclick="startLearnMode(6)">📚 Week 6: Sonnets & Poetry</button>
+                    </div>
+                </div>
+                <div id="learn-mode-active" class="hidden">
+                    <div class="learn-container">
+                        <div class="learn-header">
+                            <h3 id="learn-set-title"></h3>
+                            <div class="progress-info">
+                                <span id="learn-progress">0/0</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="learn-progress-bar"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="learn-qa-container">
+                            <div class="learn-qa-box">
+                                <div class="qa-label">Question</div>
+                                <div class="qa-text" id="learn-question"></div>
+                            </div>
+                            <div class="learn-qa-box answer-box">
+                                <div class="qa-label">Answer</div>
+                                <div class="qa-text" id="learn-answer"></div>
+                            </div>
+                        </div>
+                        <div class="learn-buttons">
+                            <button class="btn btn-secondary" id="learn-prev-btn">← Previous</button>
+                            <button class="btn btn-primary" id="learn-next-btn">Next →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Flashcards Section -->
+            <section id="flashcards" class="section">
+                <h2>🎴 Flashcards</h2>
+                <div class="flashcards-container">
+                    <!-- Mode Selection -->
+                    <div id="fc-mode-select" class="fc-mode-select">
+                        <p class="mode-select-text">Select a study set to start reviewing:</p>
+                        <div class="fc-mode-buttons">
+                            <button class="fc-mode-btn" onclick="startFlashcards(1)">📚 Week 1: Literary Terms</button>
+                            <button class="fc-mode-btn" onclick="startFlashcards(2)">📚 Week 2: Grammar & Metaphor</button>
+                            <button class="fc-mode-btn" onclick="startFlashcards(3)">📚 Week 3: Character Analysis</button>
+                            <button class="fc-mode-btn" onclick="startFlashcards('plot')">🎭 Week 4: Plot Questions</button>
+                            <button class="fc-mode-btn" onclick="startFlashcards(5)">📚 Week 5: Thematic Vocabulary</button>
+                            <button class="fc-mode-btn" onclick="startFlashcards(6)">📚 Week 6: Sonnets & Poetry</button>
+                        </div>
+                    </div>
+
+                    <!-- Active Study Mode -->
+                    <div id="fc-study-mode" class="hidden">
+                        <!-- Header with Title and Progress -->
+                        <div class="fc-header">
+                            <div class="fc-title-section">
+                                <h3 id="fc-set-title"></h3>
+                                <div class="fc-card-count" id="fc-card-count">0 cards</div>
+                            </div>
+                            <div class="fc-stats-mini">
+                                <div class="fc-stat-box">
+                                    <span class="fc-stat-label">Correct</span>
+                                    <span class="fc-stat-value" id="fc-correct-count">0</span>
+                                </div>
+                                <div class="fc-stat-box">
+                                    <span class="fc-stat-label">Total</span>
+                                    <span class="fc-stat-value" id="fc-total-count">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="fc-progress-wrapper">
+                            <div class="fc-progress-bar">
+                                <div class="fc-progress-fill" id="fc-progress-fill"></div>
+                            </div>
+                            <span class="fc-progress-text" id="fc-progress-text">0/0</span>
+                        </div>
+
+                        <!-- Main Card Display -->
+                        <div class="fc-card-wrapper">
+                            <div id="flashcard-display" class="fc-card">
+                                <div class="fc-card-label" id="fc-card-label">Question</div>
+                                <div class="fc-card-content" id="flashcard-text"></div>
+                                <div class="fc-card-answer" id="flashcard-answer-text"></div>
+                                <div class="fc-card-hint">Click card to reveal answer</div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="fc-actions">
+                            <button class="fc-action-btn fc-action-skip" id="fc-skip-btn">
+                                <span class="fc-action-icon">⊘</span>
+                                <span class="fc-action-text">Skip</span>
+                            </button>
+                            <button class="fc-action-btn fc-action-incorrect" id="fc-incorrect-btn">
+                                <span class="fc-action-icon">✗</span>
+                                <span class="fc-action-text">Need Help</span>
+                            </button>
+                            <button class="fc-action-btn fc-action-correct" id="fc-correct-btn">
+                                <span class="fc-action-icon">✓</span>
+                                <span class="fc-action-text">Got It</span>
+                            </button>
+                        </div>
+
+                        <!-- Navigation Controls -->
+                        <div class="fc-nav">
+                            <button class="fc-nav-btn" id="fc-prev-btn">← Previous</button>
+                            <button class="fc-nav-btn fc-nav-shuffle" id="fc-shuffle-btn">🔀 Shuffle Deck</button>
+                            <button class="fc-nav-btn" id="fc-next-btn">Next →</button>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="fc-session-stats">
+                            <span id="fc-accuracy" class="fc-accuracy-stat">Accuracy: --</span>
+                        </div>
+                    </div>
+
+                    <!-- Results Screen -->
+                    <div id="fc-results" class="hidden fc-results-screen">
+                        <div class="fc-results-content">
+                            <div class="fc-results-emoji">🎉</div>
+                            <h3>Session Complete!</h3>
+                            <div class="fc-results-score">
+                                <div class="fc-score-big" id="fc-final-score">0/0</div>
+                                <div class="fc-accuracy-big" id="fc-final-accuracy">Accuracy: 0%</div>
+                            </div>
+                            <div class="fc-results-breakdown">
+                                <div class="fc-breakdown-item">
+                                    <span class="fc-breakdown-label">Correct Answers</span>
+                                    <span class="fc-breakdown-value" id="fc-breakdown-correct">0</span>
+                                </div>
+                                <div class="fc-breakdown-item">
+                                    <span class="fc-breakdown-label">Cards Reviewed</span>
+                                    <span class="fc-breakdown-value" id="fc-breakdown-total">0</span>
+                                </div>
+                                <div class="fc-breakdown-item">
+                                    <span class="fc-breakdown-label">Success Rate</span>
+                                    <span class="fc-breakdown-value" id="fc-breakdown-percent">0%</span>
+                                </div>
+                            </div>
+                            <div class="fc-results-buttons">
+                                <button class="btn btn-secondary" id="fc-back-btn">← Back to Sets</button>
+                                <button class="btn btn-primary" id="fc-retake-btn">Study Again</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Write Mode Section -->
+            <section id="write" class="section">
+                <h2>✍️ Write Mode</h2>
+
+                <!-- Write Mode Selector (copied UI from Flashcards) -->
+                <div id="write-mode-select" class="fc-mode-select">
+                    <p class="mode-select-text">Select a study set to write practice:</p>
+                    <div class="fc-mode-buttons">
+                        <button class="fc-mode-btn" onclick="startWriteMode(1)">📚 Literary Terms</button>
+                        <button class="fc-mode-btn" onclick="startWriteMode(2)">📚 Grammar & Metaphor</button>
+                        <button class="fc-mode-btn" onclick="startWriteMode(3)">📚 Character Analysis</button>
+                        <button class="fc-mode-btn" onclick="startWriteMode('plot')">🎭 Plot Questions</button>
+                        <button class="fc-mode-btn" onclick="startWriteMode(5)">📚 Thematic Vocabulary</button>
+                        <button class="fc-mode-btn" onclick="startWriteMode(6)">📚 Sonnets & Poetry</button>
+                    </div>
+                </div>
+
+                <!-- Active Write Mode (hidden until a set is chosen) -->
+                <div id="write-study-mode" class="hidden">
+                    <div class="write-container">
+                        <div class="write-header">
+                            <h3 id="write-set-title"></h3>
+                            <div class="progress-info">
+                                <span id="write-progress">0/0</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="write-progress-bar"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="write-prompt">
+                            <p id="write-question"></p>
+                            <input type="text" id="write-input" class="write-input" placeholder="Type your answer here...">
+                            <div id="write-feedback" class="write-feedback hidden"></div>
+                        </div>
+                        <div class="write-buttons">
+                            <button class="btn btn-primary" id="write-submit-btn">Check Answer</button>
+                            <button class="btn btn-secondary" id="write-skip-btn">Skip</button>
+                        </div>
+                        <div style="margin-top:18px; display:flex; gap:12px;">
+                            <button class="btn btn-secondary" id="write-back-btn">← Back to Sets</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Test Section -->
+            <section id="test" class="section">
+                <h2>📝 Test Yourself</h2>
+                <div class="test-container">
+                    <div id="test-mode-select" class="test-mode-select">
+                        <h3>Select a study set to test yourself:</h3>
+                        <div class="mode-buttons">
+                            <button class="mode-btn" onclick="startTestMode(1)">Week 1 Test</button>
+                            <button class="mode-btn" onclick="startTestMode(2)">Week 2 Test</button>
+                            <button class="mode-btn" onclick="startTestMode(3)">Week 3 Test</button>
+                            <button class="mode-btn" onclick="startTestMode('plot')">Plot Test</button>
+                            <button class="mode-btn" onclick="startTestMode(5)">Week 5 Test</button>
+                            <button class="mode-btn" onclick="startTestMode(6)">Sonnets Test</button>
+                            <button class="mode-btn" onclick="startTestMode('all')">Full Exam</button>
+                        </div>
+                    </div>
+                    <div id="test-content" class="hidden test-content">
+                        <div class="test-header">
+                            <h3 id="test-title"></h3>
+                            <div class="test-timer" id="test-timer"></div>
+                        </div>
+                        <div id="test-question" class="test-question"></div>
+                        <div id="test-options" class="test-options"></div>
+                        <div class="test-nav">
+                            <button class="btn btn-secondary" id="test-prev-btn">← Previous</button>
+                            <button class="btn btn-primary" id="test-submit-btn">Submit Test</button>
+                        </div>
+                    </div>
+                    <div id="test-results" class="hidden test-results">
+                        <h3>Test Results 📊</h3>
+                        <div class="results-score" id="results-score"></div>
+                        <div id="results-breakdown"></div>
+                        <button class="btn btn-primary" id="test-retake-btn">Retake Test</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section id="progress" class="section">
+                <h2>📈 Your Progress</h2>
+                <div class="progress-container">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-studied">0</div>
+                            <div class="stat-label">Terms Studied</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-mastered">0</div>
+                            <div class="stat-label">Mastered</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-streak">0</div>
+                            <div class="stat-label">Study Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <h3>📊 Set Progress</h3>
+                        <div id="set-progress-list"></div>
+                    </div>
+
+                    <div class="progress-section">
+                        <h3>🎯 Weak Areas</h3>
+                        <div id="weak-areas-list"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
