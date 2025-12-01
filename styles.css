@@ -1621,17 +1621,28 @@ button:not(.nav-btn) {
     border-radius: var(--btn-radius);
     box-shadow: var(--shadow);
     padding: 10px 16px;
+    min-height: 44px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
 .btn:focus {
     outline: none;
     box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12);
+
 }
 
 .btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
 }
 
 .btn-primary {
@@ -1701,6 +1712,11 @@ button:not(.nav-btn) {
     gap: 8px;
     flex: 1;
     max-width: 300px;
+    span {
+        font-size: 0.9em;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
 }
 
 .progress-bar {
