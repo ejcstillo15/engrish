@@ -20,6 +20,70 @@
     --btn-radius: 25px;
 }
 
+/* Normalize and style native buttons to override user-agent outset styles
+   Applies to <button> and input-type buttons and provides a consistent base
+   for `.btn` variants (primary, secondary, mini, etc.). */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.btn {
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-style: solid;
+    box-shadow: var(--shadow);
+    padding: 10px 16px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: var(--btn-radius);
+    line-height: 1;
+    text-align: center;
+}
+
+/* Ensure small variants keep sizing but inherit the normalized look */
+.btn-sm,
+.btn--sm,
+.btn-mini {
+    padding: 8px 12px;
+    min-height: 36px;
+}
+
+/* Edwin font (for quotations) */
+@font-face {
+    font-family: 'Edwin';
+    src: url('assets/fonts/Edwin-main/Edwin-Roman.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Edwin';
+    src: url('assets/fonts/Edwin-main/Edwin-Italic.otf') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Edwin';
+    src: url('assets/fonts/Edwin-main/Edwin-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Apply Edwin to quoted text */
+.quote,
+blockquote {
+    font-family: 'Edwin', Georgia, 'Times New Roman', serif;
+}
+
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #F0F4F8 0%, #FFFFFF 100%);
@@ -70,17 +134,16 @@ body {
     font-weight: 700;
     margin: 20px 20px 8px 20px;
     letter-spacing: -0.5px;
+.fc-mode-btn,
+.fc-nav-btn,
+.reading-nav-btn,
+.learn-set-btn,
+.mode-btn {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
 }
-
-.subtitle {
-    font-size: 1.1em;
-    opacity: 0.9;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-}
-
-/* Navigation Tabs */
-.nav-tabs {
     display: flex;
     gap: 8px;
     margin-top: 30px;
@@ -283,6 +346,14 @@ body {
     background: rgba(0, 122, 255, 0.05);
     transform: translateY(-3px);
 }
+    .fc-mode-btn:hover,
+    .mode-btn:hover,
+    .learn-set-btn:hover {
+        border-color: var(--primary-color);
+        background: linear-gradient(180deg, rgba(0, 122, 255, 0.04), rgba(0, 122, 255, 0.02));
+        transform: translateY(-3px);
+        box-shadow: 0 8px 22px rgba(0, 122, 255, 0.06);
+    }
 
 /* Study Mode Header */
 .fc-header {
@@ -509,14 +580,16 @@ body {
 }
 
 .fc-action-skip {
-    background: var(--bg-light);
+    background: var(--bg-white);
     color: var(--text-primary);
     border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
 }
 
 .fc-action-skip:hover {
-    background: #F0F0F0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
     border-color: var(--text-secondary);
+    transform: translateY(-2px);
 }
 
 .fc-action-incorrect {
@@ -1540,6 +1613,16 @@ body {
     box-sizing: border-box;
 }
 
+/* Ensure all generic buttons (except nav) present a consistent, elevated look */
+button:not(.nav-btn) {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--btn-radius);
+    box-shadow: var(--shadow);
+    padding: 10px 16px;
+}
+
 .btn:focus {
     outline: none;
     box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12);
@@ -1564,13 +1647,14 @@ body {
 }
 
 .btn-secondary {
-    background: var(--bg-light);
+    background: var(--bg-white);
     color: var(--text-primary);
     border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
 }
 
 .btn-secondary:hover {
-    background: #F0F0F0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
     border-color: var(--primary-color);
     transform: translateY(-2px);
 }
@@ -1801,4 +1885,28 @@ body {
     animation: slideUp 0.4s ease;
 }
 
+}/* Flashcard Actions */
+.fc-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 24px;
+}  
+
+.fc-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    min-height: 60px;
+    border-radius: var(--btn-radius);
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 90px;
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
 }
