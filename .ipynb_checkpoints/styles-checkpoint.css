@@ -70,16 +70,17 @@ body {
     font-weight: 700;
     margin: 20px 20px 8px 20px;
     letter-spacing: -0.5px;
-.fc-mode-btn,
-.fc-nav-btn,
-.reading-nav-btn,
-.learn-set-btn,
-.mode-btn {
-    background: var(--bg-white);
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
-    box-shadow: var(--shadow);
 }
+
+.subtitle {
+    font-size: 1.1em;
+    opacity: 0.9;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* Navigation Tabs */
+.nav-tabs {
     display: flex;
     gap: 8px;
     margin-top: 30px;
@@ -282,14 +283,6 @@ body {
     background: rgba(0, 122, 255, 0.05);
     transform: translateY(-3px);
 }
-    .fc-mode-btn:hover,
-    .mode-btn:hover,
-    .learn-set-btn:hover {
-        border-color: var(--primary-color);
-        background: linear-gradient(180deg, rgba(0, 122, 255, 0.04), rgba(0, 122, 255, 0.02));
-        transform: translateY(-3px);
-        box-shadow: 0 8px 22px rgba(0, 122, 255, 0.06);
-    }
 
 /* Study Mode Header */
 .fc-header {
@@ -516,16 +509,14 @@ body {
 }
 
 .fc-action-skip {
-    background: var(--bg-white);
+    background: var(--bg-light);
     color: var(--text-primary);
     border: 2px solid var(--border-color);
-    box-shadow: var(--shadow);
 }
 
 .fc-action-skip:hover {
-    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+    background: #F0F0F0;
     border-color: var(--text-secondary);
-    transform: translateY(-2px);
 }
 
 .fc-action-incorrect {
@@ -1479,27 +1470,6 @@ body {
     cursor: pointer;
 }
 
-/* Default these button-like controls to a subtle 'secondary' appearance
-   so they look like interactive controls rather than plain grey blocks. */
-.fc-mode-btn,
-.fc-nav-btn,
-.reading-nav-btn,
-.learn-set-btn,
-.mode-btn {
-    background: var(--bg-light);
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
-}
-
-/* Small button alias used in markup */
-.btn-sm,
-.btn--sm {
-    padding: 8px 12px;
-    min-height: 36px;
-    font-size: 0.9rem;
-    border-radius: calc(var(--btn-radius) - 6px);
-}
-
 .fc-action-btn {
     /* action buttons keep icon-over-text layout but otherwise follow base sizing */
     display: flex;
@@ -1549,16 +1519,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Ensure all generic buttons (except nav) present a consistent, elevated look */
-button:not(.nav-btn) {
-    background: var(--bg-white);
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
-    border-radius: var(--btn-radius);
-    box-shadow: var(--shadow);
-    padding: 10px 16px;
-}
-
 .btn:focus {
     outline: none;
     box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12);
@@ -1583,14 +1543,13 @@ button:not(.nav-btn) {
 }
 
 .btn-secondary {
-    background: var(--bg-white);
+    background: var(--bg-light);
     color: var(--text-primary);
     border: 2px solid var(--border-color);
-    box-shadow: var(--shadow);
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+    background: #F0F0F0;
     border-color: var(--primary-color);
     transform: translateY(-2px);
 }
