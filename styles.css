@@ -1709,7 +1709,6 @@ button:not(.nav-btn) {
     font-size: 0.9rem;
     border-radius: calc(var(--btn-radius) - 6px);
 }
-
 /* Progress Bar */
 .progress-info {
     display: flex;
@@ -1717,11 +1716,12 @@ button:not(.nav-btn) {
     gap: 8px;
     flex: 1;
     max-width: 300px;
-    span {
-        font-size: 0.9em;
-        color: var(--text-secondary);
-        font-weight: 600;
-    }
+}
+
+.progress-info span {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    font-weight: 600;
 }
 
 .progress-bar {
@@ -1900,19 +1900,20 @@ button:not(.nav-btn) {
     }
 }
 
+
 .flashcard,
 .learn-card,
 .stat-card {
     animation: slideUp 0.4s ease;
 }
 
-}/* Flashcard Actions */
+/* Flashcard Actions */
 .fc-actions {
     display: flex;
     gap: 16px;
     justify-content: center;
     margin-top: 24px;
-}  
+}
 
 .fc-action-btn {
     display: flex;
@@ -1936,7 +1937,8 @@ button:not(.nav-btn) {
     background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
     border-color: var(--primary-color);
     transform: translateY(-2px);
-}  
+}
+
 .fc-action-btn:active {
     box-shadow: none;
     transform: translateY(0);
