@@ -151,6 +151,47 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupReadingGuideNav();
     initializeProgress();
+    // Modal event listeners (setup after DOM ready)
+    const mlClose = document.getElementById('learn-modal-close');
+    const mlPrev = document.getElementById('ml-prev');
+    const mlNext = document.getElementById('ml-next');
+    const learnOverlay = document.getElementById('learn-modal');
+    if (mlClose) mlClose.addEventListener('click', hideLearnModal);
+    if (mlPrev) mlPrev.addEventListener('click', () => { if (ml_index > 0) { ml_index--; updateLearnModal(); } });
+    if (mlNext) mlNext.addEventListener('click', () => { if (ml_index < ml_questions.length - 1) { ml_index++; updateLearnModal(); } });
+    if (learnOverlay) learnOverlay.addEventListener('click', (ev) => { if (ev.target === learnOverlay) hideLearnModal(); });
+
+    const mcClose = document.getElementById('cards-modal-close');
+    const mcPrev = document.getElementById('mc-prev');
+    const mcNext = document.getElementById('mc-next');
+    const mcSkip = document.getElementById('mc-skip');
+    const mcCorrect = document.getElementById('mc-correct');
+    const mcCard = document.getElementById('mc-card-display');
+    const cardsOverlay = document.getElementById('cards-modal');
+    if (mcClose) mcClose.addEventListener('click', hideCardsModal);
+    if (mcPrev) mcPrev.addEventListener('click', () => { if (mc_index > 0) { mc_index--; updateCardsModal(); } });
+    if (mcNext) mcNext.addEventListener('click', () => { if (mc_index < mc_questions.length - 1) { mc_index++; updateCardsModal(); } });
+    if (mcSkip) mcSkip.addEventListener('click', () => { if (mc_index < mc_questions.length - 1) { mc_index++; updateCardsModal(); } else hideCardsModal(); });
+    if (mcCorrect) mcCorrect.addEventListener('click', () => { learnedTerms[mc_questions[mc_index].question] = true; updateProgressDisplay(); if (mc_index < mc_questions.length - 1) { mc_index++; updateCardsModal(); } else hideCardsModal(); });
+    if (mcCard) mcCard.addEventListener('click', () => { const answer = document.getElementById('mc-answer'); const label = document.getElementById('mc-card-label'); if (answer.classList.contains('hidden')) { answer.classList.remove('hidden'); label.textContent = 'Answer'; } else { answer.classList.add('hidden'); label.textContent = 'Question'; } });
+    // open-full buttons
+    const mlOpenFull = document.getElementById('ml-open-full');
+    const mcOpenFull = document.getElementById('mc-open-full');
+    if (mlOpenFull) mlOpenFull.addEventListener('click', openFullLearnFromModal);
+    if (mcOpenFull) mcOpenFull.addEventListener('click', openFullCardsFromModal);
+
+    // choose set toggles
+    const learnChooseToggle = document.getElementById('learn-choose-toggle');
+    const fcChooseToggle = document.getElementById('fc-choose-toggle');
+    if (learnChooseToggle) learnChooseToggle.addEventListener('click', () => {
+        const selector = document.getElementById('learn-set-selector');
+        if (selector) selector.classList.toggle('hidden');
+    });
+    if (fcChooseToggle) fcChooseToggle.addEventListener('click', () => {
+        const selector = document.getElementById('fc-mode-select');
+        if (selector) selector.classList.toggle('hidden');
+    });
+    if (cardsOverlay) cardsOverlay.addEventListener('click', (ev) => { if (ev.target === cardsOverlay) hideCardsModal(); });
 });
 
 // Navigation
@@ -162,9 +203,29 @@ function setupNavigation() {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             e.target.classList.add('active');
             const sectionId = e.target.dataset.section;
+            // default behaviour: Learn / Flashcards start a mixed random deck
+            if (sectionId === 'learn') {
+                startLearnMode('all');
+                return;
+            }
+            if (sectionId === 'flashcards') {
+                startFlashcards('all');
+                return;
+            }
             document.getElementById(sectionId).classList.add('active');
         });
     });
+}
+
+function setActiveSection(sectionId) {
+    // update nav buttons
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const navBtn = document.querySelector(`.nav-btn[data-section="${sectionId}"]`);
+    if (navBtn) navBtn.classList.add('active');
+    // hide sections
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const sectionEl = document.getElementById(sectionId);
+    if (sectionEl) sectionEl.classList.add('active');
 }
 
 // Reading Guide Navigation
@@ -189,6 +250,8 @@ function setupReadingGuideNav() {
 // Get questions for a week
 function getQuestionsForWeek(week) {
     if (week === 'plot') return plotQuestions;
+    // reading guide sections (summary, characters, themes, keylines, keyscenes)
+    if (readingGuideData[week]) return readingGuideData[week];
     if (week === 'all') {
         let all = [];
         [1, 2, 3, 5, 6].forEach(w => all = [...all, ...vocabularyData[w]]);
@@ -203,7 +266,7 @@ window.startLearnMode = function(week) {
     currentWeek = week;
     currentQuestionIndex = 0;
     currentQuestions = getQuestionsForWeek(week);
-    document.querySelector('.nav-btn[data-section="learn"]').click();
+    setActiveSection('learn');
     document.getElementById('learn-set-selector').classList.add('hidden');
     document.getElementById('learn-mode-active').classList.remove('hidden');
     renderLearnMode();
@@ -253,10 +316,12 @@ window.startFlashcards = function(week) {
     currentQuestions = getQuestionsForWeek(week).slice().sort(() => Math.random() - 0.5);
     studyStats.correct = 0;
     studyStats.total = 0;
-    document.querySelector('.nav-btn[data-section="flashcards"]').click();
+    setActiveSection('flashcards');
     document.getElementById('fc-mode-select').classList.add('hidden');
     document.getElementById('fc-study-mode').classList.remove('hidden');
     document.getElementById('fc-results').classList.add('hidden');
+    document.getElementById('fc-results').classList.remove('active');
+    document.getElementById('fc-results').classList.remove('fade-out');
     renderFlashcards();
 };
 
@@ -318,13 +383,26 @@ function renderFlashcards() {
     
     // Back and Retake buttons in results
     document.getElementById('fc-back-btn').onclick = () => {
-        document.getElementById('fc-mode-select').classList.remove('hidden');
-        document.getElementById('fc-study-mode').classList.add('hidden');
-        document.getElementById('fc-results').classList.add('hidden');
+        const resultsScreen = document.getElementById('fc-results');
+        resultsScreen.classList.add('fade-out');
+        setTimeout(() => {
+            resultsScreen.classList.remove('active');
+            resultsScreen.classList.remove('fade-out');
+            resultsScreen.classList.add('hidden');
+            document.getElementById('fc-mode-select').classList.remove('hidden');
+            document.getElementById('fc-study-mode').classList.add('hidden');
+        }, 400);
     };
     
     document.getElementById('fc-retake-btn').onclick = () => {
-        startFlashcards(currentWeek);
+        const resultsScreen = document.getElementById('fc-results');
+        resultsScreen.classList.add('fade-out');
+        setTimeout(() => {
+            resultsScreen.classList.remove('active');
+            resultsScreen.classList.remove('fade-out');
+            resultsScreen.classList.add('hidden');
+            startFlashcards(currentWeek);
+        }, 400);
     };
     
     // Initialize first card
@@ -403,9 +481,10 @@ function nextFlashcard() {
 function showFlashcardResults() {
     const accuracy = studyStats.total > 0 ? Math.round((studyStats.correct / studyStats.total) * 100) : 0;
     
-    // Hide study mode, show results
-    document.getElementById('fc-study-mode').classList.add('hidden');
-    document.getElementById('fc-results').classList.remove('hidden');
+    // Show results overlay on top of flashcards
+    const resultsScreen = document.getElementById('fc-results');
+    resultsScreen.classList.remove('hidden');
+    resultsScreen.classList.add('active');
     
     // Update results display
     document.getElementById('fc-final-score').textContent = `${studyStats.correct}/${studyStats.total}`;
@@ -425,7 +504,7 @@ window.startWriteMode = function(week) {
     currentQuestions = getQuestionsForWeek(week).slice().sort(() => Math.random() - 0.5);
     studyStats.correct = 0;
     studyStats.total = 0;
-    document.querySelector('.nav-btn[data-section="write"]').click();
+    setActiveSection('write');
     // Hide the selector and show the active write mode area
     const selector = document.getElementById('write-mode-select');
     const active = document.getElementById('write-study-mode');
@@ -514,6 +593,11 @@ function checkWriteAnswer() {
     feedback.classList.remove('hidden');
     studyStats.total++;
     
+    // Auto-hide feedback and advance after 3 seconds
+    setTimeout(() => {
+        feedback.classList.add('hidden');
+    }, 3000);
+    
     setTimeout(() => {
         currentQuestionIndex++;
         if (currentQuestionIndex < currentQuestions.length) {
@@ -521,7 +605,7 @@ function checkWriteAnswer() {
         } else {
             showWriteResults();
         }
-    }, 2000);
+    }, 3000);
 }
 
 function showWriteResults() {
@@ -557,7 +641,7 @@ window.startTestMode = function(week) {
     } else {
         currentQuestions = getQuestionsForWeek(week).sort(() => Math.random() - 0.5);
     }
-    document.querySelector('.nav-btn[data-section="test"]').click();
+    setActiveSection('test');
     document.getElementById('test-mode-select').classList.add('hidden');
     document.getElementById('test-content').classList.remove('hidden');
     document.getElementById('test-results').classList.add('hidden');
@@ -668,6 +752,47 @@ function updateProgressDisplay() {
     // Save progress
     localStorage.setItem('learnedTerms', JSON.stringify(learnedTerms));
     localStorage.setItem('studyStats', JSON.stringify(studyStats));
+
+    // Populate weak areas & achievements so progress section receives styled content
+    const weakAreasContainer = document.getElementById('weak-areas-list');
+    if (weakAreasContainer) {
+        const allSets = [1,2,3,'plot',5,6];
+        const weakItems = allSets.map(w => {
+            const qs = getQuestionsForWeek(w);
+            const learned = qs.filter(q => learnedTerms[q.question]).length;
+            const pct = Math.round((learned / (qs.length || 1)) * 100);
+            return { id: w, title: getSetTitle(w), pct };
+        }).filter(s => s.pct < 60);
+
+        if (weakItems.length === 0) {
+            weakAreasContainer.innerHTML = '<div class="weak-area-item"><div class="item-name">None — keep going!</div><div style="color:var(--text-secondary);margin-top:6px">Looks like you don\'t have any weak areas right now.</div></div>';
+        } else {
+            weakAreasContainer.innerHTML = weakItems.map(w => `
+                <div class="weak-area-item">
+                    <div class="item-name">${w.title}</div>
+                    <div style="font-weight:700;color:var(--danger);margin-top:8px">${w.pct}% mastered</div>
+                    <div style="margin-top:8px;color:var(--text-secondary);font-size:0.95em">Keep reviewing this set to improve accuracy.</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    const achievementsContainer = document.getElementById('achievements-list');
+    if (achievementsContainer) {
+        const mastered = Object.values(learnedTerms).filter(v => v).length;
+        const studied = Object.keys(learnedTerms).length;
+        const earned = [];
+        if (studied >= 5) earned.push('First 5 terms studied');
+        if (studied >= 20) earned.push('20 Terms studied');
+        if (mastered >= 5) earned.push('First 5 mastered');
+        if (mastered >= 15) earned.push('15 mastered — Solid Work');
+        if (earned.length === 0) {
+            achievementsContainer.innerHTML = '<div style="padding:12px;border-radius:12px;background:var(--bg-light);color:var(--text-secondary)">No achievements yet — keep practicing to unlock badges!</div>';
+        } else {
+            achievementsContainer.innerHTML = earned.map(a => `<div style="padding:12px;border-radius:12px;background:linear-gradient(135deg,#FFF 0%,#F7FBFF 100%);border:1px solid var(--border-color);font-weight:700;color:var(--text-primary)">${a}</div>`).join('');
+        }
+    }
+
 }
 
 function getSetTitle(week) {
@@ -690,7 +815,7 @@ window.startReadingGuideFlashcards = function(section) {
     currentQuestions = (readingGuideData[section] || []).slice().sort(() => Math.random() - 0.5);
     studyStats.correct = 0;
     studyStats.total = 0;
-    document.querySelector('.nav-btn[data-section="flashcards"]').click();
+    setActiveSection('flashcards');
     document.getElementById('fc-mode-select').classList.add('hidden');
     document.getElementById('fc-study-mode').classList.remove('hidden');
     document.getElementById('fc-results').classList.add('hidden');
@@ -702,7 +827,7 @@ window.startReadingGuideLearn = function(section) {
     currentWeek = section;
     currentQuestionIndex = 0;
     currentQuestions = readingGuideData[section] || [];
-    document.querySelector('.nav-btn[data-section="learn"]').click();
+    setActiveSection('learn');
     document.getElementById('learn-set-selector').classList.add('hidden');
     document.getElementById('learn-mode-active').classList.remove('hidden');
     renderLearnMode();
@@ -739,3 +864,13 @@ document.addEventListener('click', (e) => {
         updateProgressDisplay();
     }
 });
+
+// ---------- Modal popups: Learn & Cards preview from Study Sets grid ----------
+let ml_questions = [];
+let ml_index = 0;
+let ml_week = null;
+let mc_questions = [];
+let mc_index = 0;
+let mc_week = null;
+
+// Previews removed - users go directly to full modes

@@ -5,19 +5,26 @@
 }
 
 :root {
-    --primary-color: #007AFF;
-    --secondary-color: #5AC8FA;
-    --text-primary: #000;
-    --text-secondary: #666;
-    --bg-light: #F9F9F9;
+    --primary-color: #0A84FF;
+    --secondary-color: #34B7FF;
+    --text-primary: #1D1D1D;
+    --text-secondary: #6B6B6B;
+    --bg-light: #F5F5F7;
     --bg-white: #FFFFFF;
-    --border-color: #E5E5EA;
-    --success: #34C759;
+    --border-color: #E6E7EA;
+    --success: #30B0C0;
     --warning: #FF9500;
-    --danger: #FF3B30;
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
-    --btn-radius: 25px;
+    --danger: #FF453A;
+    /* Flat, layered shadows for a soft 3D look */
+    --shadow: 0 6px 18px rgba(16,24,40,0.06), 0 2px 6px rgba(16,24,40,0.04);
+    --shadow-lg: 0 20px 40px rgba(16,24,40,0.08), 0 8px 18px rgba(16,24,40,0.06);
+    --shadow-xl: 0 30px 60px rgba(16,24,40,0.10);
+    /* Radii tuned for Apple-like roundness */
+    --btn-radius: 18px;
+    --card-radius: 18px;
+    --ui-radius: 20px;
+    --transition-sm: 150ms cubic-bezier(0.22, 0.9, 0.3, 1);
+    --transition-md: 240ms cubic-bezier(0.22, 0.9, 0.3, 1);
 }
 
 /* Normalize and style native buttons to override user-agent outset styles
@@ -32,7 +39,7 @@ input[type="reset"],
     appearance: none;
     background: var(--bg-white);
     color: var(--text-primary);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     border-style: solid;
     box-shadow: var(--shadow);
     padding: 10px 16px;
@@ -42,6 +49,7 @@ input[type="reset"],
     border-radius: var(--btn-radius);
     line-height: 1;
     text-align: center;
+    transition: all var(--transition-sm);
 }
 
 /* Ensure small variants keep sizing but inherit the normalized look */
@@ -86,7 +94,7 @@ blockquote {
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #F0F4F8 0%, #FFFFFF 100%);
+    background: linear-gradient(135deg, #F5F5F7 0%, #FFFFFF 100%);
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
@@ -96,6 +104,88 @@ body {
     width: 100%;
     max-width: 100%;
 }
+
+/* Apple-like flat 3D and extra roundness rules */
+.btn,
+.nav-btn,
+.fc-action-btn,
+.fc-card,
+.learn-card,
+.stat-card,
+.modal-panel {
+    border-radius: var(--ui-radius);
+}
+
+/* Buttons: glossy, flat, and rounded */
+.btn {
+    position: relative;
+    overflow: visible;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,250,252,1));
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: var(--shadow);
+}
+
+.btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0));
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+}
+
+.btn-primary {
+    background: linear-gradient(180deg, var(--primary-color), color-mix(in srgb, var(--primary-color) 80%, black 10%));
+    color: #fff;
+    border: none;
+    box-shadow: 0 8px 26px rgba(10,132,255,0.12), 0 3px 8px rgba(16,24,40,0.06);
+}
+
+.btn-primary::after { opacity: 0.08 }
+
+/* Cards with increased roundness and subtle top highlight */
+.fc-card,
+.learn-card,
+.stat-card {
+    border-radius: var(--card-radius);
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,249,250,1));
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(10,10,10,0.03);
+}
+
+.fc-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
+    mix-blend-mode: overlay;
+}
+
+/* Subtle elevation variants for important controls */
+.elevated {
+    box-shadow: var(--shadow-lg);
+    transform: translateZ(0);
+}
+
+/* Tweak nav buttons so text remains visible over gradients */
+.nav-btn {
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(6px) saturate(120%);
+    border-radius: calc(var(--btn-radius) + 4px);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: var(--text-primary);
+    padding: 8px 12px;
+}
+
+.nav-btn:hover {
+    background: rgba(255,255,255,0.86);
+    box-shadow: 0 8px 24px rgba(16,24,40,0.06);
+}
+
 
 .container {
     max-width: 100%;
@@ -117,10 +207,10 @@ body {
 /* Header */
 .header {
     text-align: center;
-    margin: 20px auto 40px auto;
-    padding: 50px 20px 30px 20px;
-    background: linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%);
-    border-radius: 35px;
+    margin: 20px auto 36px auto;
+    padding: 40px 20px 26px 20px;
+    background: linear-gradient(135deg, #0A84FF 0%, #34B7FF 100%);
+    border-radius: 20px;
     color: white;
     box-shadow: var(--shadow-lg);
     overflow: hidden;
@@ -134,16 +224,8 @@ body {
     font-weight: 700;
     margin: 20px 20px 8px 20px;
     letter-spacing: -0.5px;
-.fc-mode-btn,
-.fc-nav-btn,
-.reading-nav-btn,
-.learn-set-btn,
-.mode-btn {
-    background: var(--bg-white);
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
-    box-shadow: var(--shadow);
 }
+.header-nav {
     display: flex;
     gap: 8px;
     margin-top: 30px;
@@ -155,6 +237,18 @@ body {
     flex-wrap: wrap;
     width: 100%;
     box-sizing: border-box;
+}
+
+.fc-mode-btn,
+/* buttons in the header & section controls should inherit a neutral white surface by default */
+.fc-nav-btn,
+.reading-nav-btn,
+.learn-set-btn,
+.mode-btn {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
 }
 
 .nav-btn {
@@ -169,20 +263,22 @@ body {
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
+    transition: all var(--transition-sm);
     white-space: nowrap;
     letter-spacing: 0.2px;
-    border-radius: var(--btn-radius);
+    border-radius: 0;
 }
 
 .nav-btn:hover {
     color: white;
-    border-bottom-color: rgba(255, 255, 255, 0.4);
+    border-bottom-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .nav-btn.active {
     color: white;
     border-bottom-color: white;
+    background: rgba(255, 255, 255, 0.15);
 }
 
 /* Content Sections */
@@ -242,19 +338,20 @@ body {
 
 .study-set-card {
     background: var(--bg-white);
-    border-radius: 30px;
-    padding: 28px;
+    border-radius: 16px;
+    padding: 24px;
     box-shadow: var(--shadow);
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+    transition: all var(--transition-md);
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
 }
 
 .study-set-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-8px) scale(1.01);
     box-shadow: var(--shadow-lg);
     border-color: var(--primary-color);
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%);
 }
 
 .set-header {
@@ -271,13 +368,17 @@ body {
     margin: 0;
 }
 
+.study-set-card {
+    border-left: 6px solid rgba(0,0,0,0.03);
+}
+
 .card-count {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
     padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.85em;
-    font-weight: 600;
+    border-radius: 8px;
+    font-size: 0.8em;
+    font-weight: 700;
 }
 
 .set-description {
@@ -296,15 +397,21 @@ body {
 
 .btn-mini {
     flex: 1;
-    padding: 10px 12px !important;
-    font-size: 0.9em !important;
+    padding: 9px 12px !important;
+    font-size: 0.85em !important;
+    transition: all var(--transition-sm) !important;
+}
+
+.btn-mini:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg) !important;
 }
 
 /* Flashcard Styles - Revamped */
 .flashcards-container {
     background: var(--bg-white);
-    border-radius: 35px;
-    padding: 48px;
+    border-radius: 20px;
+    padding: 40px;
     box-shadow: var(--shadow-lg);
     width: 100%;
     box-sizing: border-box;
@@ -330,8 +437,8 @@ body {
 
 .fc-mode-btn {
     margin: 3px;
-    padding: 16px 18px;
-    border: 2px solid var(--border-color);
+    padding: 14px 18px;
+    border: 1px solid var(--border-color);
     background: var(--bg-white);
     color: var(--text-primary);
     border-radius: var(--btn-radius);
@@ -339,22 +446,27 @@ body {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 0.95em;
-    transition: all 0.2s ease;
+    transition: all var(--transition-sm);
     letter-spacing: 0.2px;
 }
 
 .fc-mode-btn:hover {
     border-color: var(--primary-color);
-    background: rgba(0, 122, 255, 0.05);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.06), rgba(52, 183, 255, 0.04));
     transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.fc-mode-btn:active {
+    transform: translateY(-1px);
 }
     .fc-mode-btn:hover,
     .mode-btn:hover,
     .learn-set-btn:hover {
         border-color: var(--primary-color);
-        background: linear-gradient(180deg, rgba(0, 122, 255, 0.04), rgba(0, 122, 255, 0.02));
+        background: linear-gradient(135deg, rgba(10, 132, 255, 0.06), rgba(52, 183, 255, 0.04));
         transform: translateY(-3px);
-        box-shadow: 0 8px 22px rgba(0, 122, 255, 0.06);
+        box-shadow: var(--shadow-lg);
     }
 
 /* Study Mode Header */
@@ -428,7 +540,7 @@ body {
 
 .fc-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #007AFF 0%, #5AC8FA 100%);
+    background: linear-gradient(90deg, #0A84FF 0%, #34B7FF 100%);
     transition: width 0.3s ease;
     border-radius: 4px;
 }
@@ -455,9 +567,9 @@ body {
     width: 100%;
     max-width: 600px;
     aspect-ratio: 16 / 10;
-    background: linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%);
+    background: linear-gradient(135deg, #0A84FF 0%, #34B7FF 100%);
     color: white;
-    border-radius: 35px;
+    border-radius: 20px;
     padding: 48px;
     display: flex;
     flex-direction: column;
@@ -465,8 +577,8 @@ body {
     align-items: center;
     text-align: center;
     cursor: pointer;
-    box-shadow: 0 10px 40px rgba(0, 122, 255, 0.2);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 10px 40px rgba(10, 132, 255, 0.25);
+    transition: all var(--transition-md) cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     overflow: hidden;
     user-select: none;
@@ -474,7 +586,7 @@ body {
 
 .fc-card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 15px 50px rgba(0, 122, 255, 0.3);
+    box-shadow: 0 20px 50px rgba(10, 132, 255, 0.35);
 }
 
 .fc-card:active {
@@ -482,8 +594,8 @@ body {
 }
 
 .fc-card.flipped {
-    background: linear-gradient(135deg, #34C759 0%, #50E89D 100%);
-    box-shadow: 0 10px 40px rgba(52, 199, 89, 0.2);
+    background: linear-gradient(135deg, #30B0C0 0%, #50E8A5 100%);
+    box-shadow: 0 10px 40px rgba(48, 176, 192, 0.25);
 }
 
 .fc-card-label {
@@ -584,36 +696,40 @@ body {
 .fc-action-skip {
     background: var(--bg-white);
     color: var(--text-primary);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow);
 }
 
 .fc-action-skip:hover {
-    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+    background: linear-gradient(135deg, rgba(0,0,0,0.03), rgba(0,0,0,0.01));
     border-color: var(--text-secondary);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .fc-action-incorrect {
-    background: rgba(255, 59, 48, 0.1);
+    background: rgba(255, 69, 58, 0.1);
     color: var(--danger);
-    border: 2px solid var(--danger);
+    border: 1px solid var(--danger);
 }
 
 .fc-action-incorrect:hover {
     background: var(--danger);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .fc-action-correct {
-    background: var(--success);
+    background: linear-gradient(135deg, var(--success) 0%, #50E8A5 100%);
     color: white;
-    border: 2px solid var(--success);
+    border: 1px solid var(--success);
+    box-shadow: var(--shadow);
 }
 
 .fc-action-correct:hover {
-    background: #2ACF3A;
-    transform: scale(1.05);
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: var(--shadow-xl);
 }
 
 /* Navigation Controls */
@@ -630,21 +746,23 @@ body {
     padding: 12px 18px;
     min-height: 44px;
     box-sizing: border-box;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     background: var(--bg-white);
     color: var(--text-primary);
     border-radius: var(--btn-radius);
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
-    transition: all 0.2s ease;
+    transition: all var(--transition-sm);
     font-size: 0.95em;
     letter-spacing: 0.2px;
 }
 
 .fc-nav-btn:hover:not(:disabled) {
     border-color: var(--primary-color);
-    background: rgba(0, 122, 255, 0.05);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.06), rgba(52, 183, 255, 0.04));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .fc-nav-btn:disabled {
@@ -653,14 +771,16 @@ body {
 }
 
 .fc-nav-shuffle {
-    background: rgba(0, 122, 255, 0.1);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.12), rgba(52, 183, 255, 0.08));
     border-color: var(--primary-color);
     color: var(--primary-color);
 }
 
 .fc-nav-shuffle:hover:not(:disabled) {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 
 /* Session Stats */
@@ -683,13 +803,53 @@ body {
 
 /* Results Screen */
 .fc-results-screen {
-    text-align: center;
-    padding: 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease-out;
+    padding: clamp(20px, 5vw, 60px);
+}
+
+.fc-results-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fc-results-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .fc-results-content {
     max-width: 500px;
-    margin: 0 auto;
+    width: 100%;
+    background: var(--bg-white);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .fc-results-emoji {
@@ -707,11 +867,11 @@ body {
 }
 
 .fc-results-score {
-    background: linear-gradient(135deg, #F9F9F9 0%, #FFFFFF 100%);
-    border-radius: 16px;
+    background: linear-gradient(135deg, #F5F5F7 0%, #FFFFFF 100%);
+    border-radius: 12px;
     padding: 36px;
     margin-bottom: 32px;
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
 }
 
 .fc-score-big {
@@ -741,7 +901,8 @@ body {
     background: var(--bg-light);
     padding: 18px;
     border-radius: 10px;
-    border-left: 4px solid var(--primary-color);
+    border: none;
+    border-bottom: 3px solid var(--primary-color);
 }
 
 .fc-breakdown-label {
@@ -788,6 +949,17 @@ body {
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Reading Guide Section */
@@ -1273,11 +1445,13 @@ body {
 .write-feedback {
     margin-top: 20px;
     padding: 16px 18px;
-    border-radius: 25px;
-    background: rgba(52, 199, 89, 0.1);
-    border-left: 4px solid var(--success);
+    border-radius: 8px;
+    background: rgba(52, 199, 89, 0.08);
+    border: none;
+    border-bottom: 4px solid var(--success);
     font-weight: 500;
     line-height: 1.5;
+    animation: slideInUp 0.3s ease-out;
 }
 
 .write-feedback.hidden {
@@ -1285,8 +1459,8 @@ body {
 }
 
 .write-feedback.incorrect {
-    background: rgba(255, 59, 48, 0.1) !important;
-    border-left-color: var(--danger) !important;
+    background: rgba(255, 59, 48, 0.08) !important;
+    border-bottom-color: var(--danger) !important;
 }
 
 /* Test Mode */
@@ -1744,6 +1918,98 @@ button:not(.nav-btn) {
     display: none !important;
 }
 
+/* Modal overlay / popup styling (used for Learn / Cards popups) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px) saturate(120%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999; /* ensure overlay is above everything */
+    padding: clamp(20px, 5vw, 60px);
+}
+.modal-panel {
+    width: min(90vw, 980px);
+    max-width: 980px;
+    background: var(--bg-white);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box;
+    position: relative; /* enable absolute-positioned close button inside */
+    border-radius: 18px;
+    transform: translateY(10px) scale(0.99);
+    transition: transform 240ms cubic-bezier(.2,.9,.2,1), opacity 240ms ease;
+    opacity: 0;
+}
+.modal-overlay .modal-panel.open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+.modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: rgba(255,255,255,0.98);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* prevent page scrolling while modal open */
+body.modal-open { overflow: hidden !important; }
+
+/* polish modal content */
+.modal-panel { border: 1px solid rgba(6, 22, 38, 0.06); backdrop-filter: saturate(120%) blur(4px); }
+.modal-header h3 { font-size: 1.4rem; font-weight: 800; color: #0b1221; }
+.modal-body { padding-top: 12px; color: var(--text-secondary); }
+.modal-panel .btn { border-radius: 999px; padding: 10px 16px; min-width: 110px; }
+.modal-panel .btn.btn-primary { background: linear-gradient(90deg,#0969FF,#0AB5FF); color: white; border: none; box-shadow: 0 8px 28px rgba(10,86,255,0.12); }
+.modal-panel .btn.btn-secondary { background: #fff; color: var(--text-primary); border: 1px solid rgba(0,0,0,0.06); }
+
+/* cards preview card inside modal should look like a centered elevated card */
+#mc-card-display { margin: 18px auto; max-width: 720px; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(6,20,30,0.14); }
+
+/* smaller screens: stacked columns and smaller buttons */
+@media (max-width: 640px) {
+    .modal-panel { width: calc(100% - 36px); padding: 18px; }
+    .modal-panel .btn { padding: 10px 12px; min-width: 90px; }
+    #mc-card-display { max-width: 95vw; }
+}
+
+/* 'Choose set' toggle button inside mode sections */
+.choose-set-toggle {
+    display:inline-flex;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:18px;
+    border:2px solid var(--border-color);
+    background: var(--bg-white);
+    cursor:pointer;
+    font-weight:700;
+}
+
+.reading-action-buttons .btn { padding: 12px 18px; }
+.modal-panel .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.modal-body { max-height: 60vh; overflow: auto; }
+
 /* Footer */
 .footer {
     text-align: center;
@@ -1950,4 +2216,88 @@ button:not(.nav-btn) {
 }
 .fc-action-incorrect {
     background: var(--bg-white);
+    color: var(--danger);
+    border-color: var(--danger);
+}
+.fc-action-incorrect:hover {
+    background: rgba(255, 59, 48, 0.05);
+    border-color: var(--danger);
+    transform: translateY(-2px);
+}
+
+/* Improved interactive states: better contrast, subtle Apple-like motion, and focus rings */
+/* Smooth, hardware-accelerated transitions for interactive elements */
+.btn,
+.nav-btn,
+.fc-action-btn,
+.fc-mode-btn,
+.fc-nav-btn,
+.test-option {
+    transition: transform var(--transition-sm),
+                box-shadow var(--transition-sm),
+                background-color var(--transition-sm),
+                color var(--transition-sm);
+    will-change: transform, box-shadow, background-color;
+}
+
+/* Ensure text remains readable when backgrounds darken on hover/active */
+.btn-primary:hover,
+.btn-primary:active,
+.fc-nav-shuffle:hover,
+.test-option.selected,
+.test-option:hover,
+.fc-card:hover,
+.fc-card.flipped,
+.nav-btn.active,
+.nav-btn:hover {
+    color: var(--text-on-primary, #fff) !important;
+}
+
+/* Subtle lift and soft shadow on hover for an Apple-like feel */
+.btn:hover,
+.nav-btn:hover,
+.fc-action-btn:hover,
+.fc-mode-btn:hover,
+.fc-nav-btn:hover,
+.test-option:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 10px 30px rgba(16,24,40,0.08), 0 2px 6px rgba(16,24,40,0.06);
+}
+
+/* Pressed state */
+.btn:active,
+.nav-btn:active,
+.fc-action-btn:active,
+.fc-mode-btn:active,
+.fc-nav-btn:active,
+.test-option:active {
+    transform: translateY(0) scale(0.995);
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+}
+
+/* Accessible focus ring (keyboard only) */
+.btn:focus-visible,
+.nav-btn:focus-visible,
+.fc-action-btn:focus-visible,
+.fc-mode-btn:focus-visible,
+.fc-nav-btn:focus-visible,
+.test-option:focus-visible {
+    outline: none;
+    box-shadow: 0 8px 30px rgba(10,132,255,0.12), 0 0 0 4px rgba(10,132,255,0.08);
+    border-color: color-mix(in srgb, var(--primary-color) 70%, transparent);
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .btn,
+    .nav-btn,
+    .fc-action-btn,
+    .fc-mode-btn,
+    .fc-nav-btn,
+    .test-option,
+    .fc-card {
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+    }
 }

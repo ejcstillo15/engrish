@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- App container -->
     <div class="app-container">
         <!-- Top Navigation Tabs and Header -->
         <header class="header blue-gradient">
@@ -26,6 +27,11 @@
             <!-- Study Sets Section -->
             <section id="study" class="section active">
                 <h2>📚 Study Sets</h2>
+                <div style="display:flex;gap:12px;margin-bottom:18px;align-items:center;">
+                    <div style="font-weight:700;color:var(--text-secondary)">Prefer a mixed deck? Start a random mix across all sets:</div>
+                    <button class="btn btn-primary" onclick="startLearnMode('all')">Random Learn</button>
+                    <button class="btn btn-secondary" onclick="startFlashcards('all')">Random Cards</button>
+                </div>
                 <div class="study-sets-grid">
                     <div class="study-set-card">
                         <div class="set-header">
@@ -126,9 +132,9 @@
                         <div class="reading-section-header">
                             <h3>Play Summary</h3>
                             <div class="reading-action-buttons">
-                                <button class="btn btn-primary btn-sm" onclick="startReadingGuideLearn('summary')">📚 Learn</button>
-                                <button class="btn btn-secondary btn-sm" onclick="startReadingGuideFlashcards('summary')">🎴 Cards</button>
-                            </div>
+                                            <button class="btn btn-primary btn-sm" onclick="startLearnMode('summary')">📚 Learn</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="startFlashcards('summary')">🎴 Cards</button>
+                                        </div>
                         </div>
                         <div class="summary-intro">
                             <h4>Quick Summary (2 Sentences)</h4>
@@ -193,9 +199,9 @@
                         <div class="reading-section-header">
                             <h3>Key Characters</h3>
                             <div class="reading-action-buttons">
-                                <button class="btn btn-primary btn-sm" onclick="startReadingGuideLearn('characters')">📚 Learn</button>
-                                <button class="btn btn-secondary btn-sm" onclick="startReadingGuideFlashcards('characters')">🎴 Cards</button>
-                            </div>
+                                            <button class="btn btn-primary btn-sm" onclick="startLearnMode('characters')">📚 Learn</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="startFlashcards('characters')">🎴 Cards</button>
+                                        </div>
                         </div>
                         <div class="characters-grid">
                             <div class="character-card">
@@ -459,7 +465,11 @@
             <!-- Learn Mode Section -->
             <section id="learn" class="section">
                 <h2>📖 Learn Mode</h2>
-                <div id="learn-set-selector" class="learn-set-selector">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
+                    <div style="font-weight:700;color:var(--text-secondary);">Select a study set to begin (or use Random Mix)</div>
+                    <button id="learn-choose-toggle" class="choose-set-toggle">Choose set</button>
+                </div>
+                <div id="learn-set-selector" class="learn-set-selector hidden">
                     <p style="margin-bottom: 20px; color: var(--text-secondary);">Select a study set to begin:</p>
                     <div class="learn-set-buttons">
                         <button class="learn-set-btn" onclick="startLearnMode(1)">Literary Terms</button>
@@ -504,7 +514,11 @@
                 <h2>🎴 Flashcards</h2>
                 <div class="flashcards-container">
                     <!-- Mode Selection -->
-                    <div id="fc-mode-select" class="fc-mode-select">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
+                        <div style="font-weight:700;color:var(--text-secondary);">Select a study set to start (or use Random Mix)</div>
+                        <button id="fc-choose-toggle" class="choose-set-toggle">Choose set</button>
+                    </div>
+                    <div id="fc-mode-select" class="fc-mode-select hidden">
                         <p class="mode-select-text">Select a study set to start reviewing:</p>
                         <div class="fc-mode-buttons">
                             <button class="fc-mode-btn" onclick="startFlashcards(1)">Literary Terms</button>
@@ -750,5 +764,6 @@
     </div>
 
     <script src="app.js"></script>
+    
 </body>
 </html>
