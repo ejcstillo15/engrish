@@ -103,6 +103,7 @@ body {
     overflow-x: hidden;
     width: 100%;
     max-width: 100%;
+    text-transform: lowercase; /* make entire site lowercase */
 }
 
 /* Apple-like flat 3D and extra roundness rules */
@@ -114,6 +115,16 @@ body {
 .stat-card,
 .modal-panel {
     border-radius: var(--ui-radius);
+}
+.modal-panel .modal-body input[type="text"],
+.modal-panel .modal-body input[type="password"],
+.modal-panel .modal-body select {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Small responsive adjustments for AI modal */
+@media (max-width: 640px) {
+    #ai-settings-modal .modal-panel { width: calc(100% - 36px); padding: 16px; }
 }
 
 /* Buttons: glossy, flat, and rounded */
@@ -281,6 +292,40 @@ body {
     background: rgba(255, 255, 255, 0.15);
 }
 
+/* Header-specific pill tabs: rounded, elevated, and high-contrast on active */
+.header .nav-tabs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.header .nav-btn {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.95);
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    transition: transform var(--transition-sm), box-shadow var(--transition-sm), background-color var(--transition-sm), color var(--transition-sm);
+}
+
+.header .nav-btn:hover {
+    background: rgba(255,255,255,0.18);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(16,24,40,0.08);
+}
+
+.header .nav-btn.active {
+    background: linear-gradient(90deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+    color: white;
+    box-shadow: 0 14px 40px rgba(10,132,255,0.10), 0 4px 10px rgba(16,24,40,0.06);
+    transform: translateY(-4px) scale(1.01);
+}
+
+
 /* Content Sections */
 .content {
     animation: fadeIn 0.3s ease;
@@ -338,19 +383,19 @@ body {
 
 .study-set-card {
     background: var(--bg-white);
-    border-radius: 16px;
+    border-radius: var(--card-radius);
     padding: 24px;
     box-shadow: var(--shadow);
-    transition: all var(--transition-md);
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
 }
 
 .study-set-card:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary-color);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(16, 24, 40, 0.12);
+    border-color: color-mix(in srgb, var(--primary-color) 60%, var(--border-color));
     background: linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%);
 }
 
@@ -369,14 +414,15 @@ body {
 }
 
 .study-set-card {
-    border-left: 6px solid rgba(0,0,0,0.03);
+    /* subtle left accent to indicate category */
+    border-left: 6px solid rgba(10,132,255,0.06);
 }
 
 .card-count {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     color: white;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 0.8em;
     font-weight: 700;
 }
@@ -399,23 +445,85 @@ body {
     flex: 1;
     padding: 9px 12px !important;
     font-size: 0.85em !important;
-    transition: all var(--transition-sm) !important;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
 
 .btn-mini:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px) scale(1.02);
     box-shadow: var(--shadow-lg) !important;
+}
+
+.btn-mini:active {
+    transform: translateY(-1px) scale(0.98);
 }
 
 /* Flashcard Styles - Revamped */
 .flashcards-container {
     background: var(--bg-white);
-    border-radius: 20px;
+    border-radius: var(--card-radius);
     padding: 40px;
     box-shadow: var(--shadow-lg);
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+}
+
+/* Apply the same visual treatment used by the flashcards UI to
+   the Write and Test modes so they feel consistent. */
+.write-container,
+.write-container .write-prompt,
+.test-container,
+#test,
+#test .test-container {
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,249,250,1));
+    border-radius: var(--card-radius);
+    padding: 40px;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* Make write/test headers match flashcard header spacing and divider */
+.write-header,
+.test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+/* Align action areas and buttons with flashcard controls */
+.write-buttons,
+.test-actions,
+.test-nav,
+.write .flashcard-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.write .btn,
+.test-container .btn,
+.test-actions .btn {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--btn-radius);
+    box-shadow: var(--shadow);
+    padding: 10px 16px;
+}
+
+/* Make write prompt visually closer to a card */
+.write-prompt {
+    background: linear-gradient(135deg, #F9F9F9 0%, #FFFFFF 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-radius);
+    padding: 24px;
 }
 
 .mode-select-text {
@@ -446,19 +554,19 @@ body {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 0.95em;
-    transition: all var(--transition-sm);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     letter-spacing: 0.2px;
 }
 
 .fc-mode-btn:hover {
     border-color: var(--primary-color);
-    background: linear-gradient(135deg, rgba(10, 132, 255, 0.06), rgba(52, 183, 255, 0.04));
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.08), rgba(52, 183, 255, 0.04));
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(10, 132, 255, 0.15);
 }
 
 .fc-mode-btn:active {
-    transform: translateY(-1px);
+    transform: translateY(-1px) scale(0.98);
 }
     .fc-mode-btn:hover,
     .mode-btn:hover,
@@ -477,6 +585,181 @@ body {
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 2px solid var(--border-color);
+}
+
+/* Copy flashcards typography for Write and Test headers */
+.write-header h3,
+.test-header h3 {
+    font-size: 1.6em; /* same as .fc-title-section h3 */
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+    letter-spacing: -0.4px;
+}
+
+/* Copy the small-card count/metric style */
+.write-header .card-count,
+.test-header .card-count,
+.write-header .count-text,
+.test-header .count-text {
+    color: var(--text-secondary);
+    font-size: 0.95em;
+    font-weight: 500;
+}
+
+/* Apply fc progress bar typography and sizing inside write/test containers
+   If the write or test sections include a `.fc-progress-wrapper` or similar
+   structure, these rules will make the text match the flashcards UI. */
+.write-container .fc-progress-wrapper,
+.test-container .fc-progress-wrapper,
+.write-container .progress-wrapper,
+.test-container .progress-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.write-container .fc-progress-bar,
+.test-container .fc-progress-bar,
+.write-container .progress-bar,
+.test-container .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.write-container .fc-progress-fill,
+.test-container .fc-progress-fill,
+.write-container .progress-fill,
+.test-container .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0A84FF 0%, #34B7FF 100%);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.write-container .fc-progress-text,
+.test-container .fc-progress-text,
+.write-container .progress-text,
+.test-container .progress-text {
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 45px;
+    text-align: right;
+    font-size: 0.95em;
+    letter-spacing: 0.2px;
+}
+
+/* More precise rules for the write header markup used in the page
+   (targets the existing `.progress-info` and `#write-progress`).
+   Use a 3-column grid so the set title (left), progress (center)
+   and small stats (right) align on one baseline similar to
+   the flashcards header. */
+.write-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.write-header .progress-info {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-width: 140px;
+}
+
+.write-header .progress-info #write-progress {
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 48px;
+    text-align: right;
+    font-size: 0.95em;
+}
+
+.write-header .progress-info .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.write-header .progress-info .progress-fill,
+.write-header .progress-info #write-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #0A84FF 0%, #34B7FF 100%);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+/* If the test header uses a similar simple numeric span, style it too */
+.test-header .progress-info,
+.test-header .progress-info #test-progress {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.test-header .progress-info #test-progress {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Replace progress bar in Write header with the small stats layout used
+   by flashcards: show Correct/Total as bold metrics and hide the bar. */
+.write-header .progress-info .progress-bar {
+    display: none; /* remove the bar visual in header per request */
+}
+
+.write-stats-mini {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    justify-self: end; /* place the stats in the right-most grid cell */
+    margin-top: 0;
+}
+
+/* Center the numeric progress in the middle grid column */
+.write-header .progress-info {
+    justify-self: center;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-width: 120px;
+}
+
+.write-header h3 {
+    justify-self: start;
+    margin: 0;
+}
+
+.write-stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.write-stat-label {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.write-stat-value {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
 }
 
 .fc-title-section h3 {
@@ -530,6 +813,14 @@ body {
     margin-bottom: 30px;
 }
 
+/* When a section is a random-set (mixed deck), hide progress bars to reduce noise */
+.section.random-set .fc-progress-wrapper,
+.section.random-set .fc-progress-bar,
+.section.random-set .write-header .progress-info .progress-bar,
+.section.random-set .progress-bar {
+    display: none !important;
+}
+
 .fc-progress-bar {
     flex: 1;
     height: 8px;
@@ -560,7 +851,7 @@ body {
     justify-content: center;
     align-items: center;
     margin: 50px 0;
-    perspective: 1000px;
+    perspective: 1200px;
 }
 
 .fc-card {
@@ -578,19 +869,20 @@ body {
     text-align: center;
     cursor: pointer;
     box-shadow: 0 10px 40px rgba(10, 132, 255, 0.25);
-    transition: all var(--transition-md) cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
     overflow: hidden;
     user-select: none;
+    transform-style: preserve-3d;
 }
 
 .fc-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 50px rgba(10, 132, 255, 0.35);
+    transform: translateY(-14px) scale(1.03) rotateX(3deg);
+    box-shadow: 0 28px 64px rgba(10, 132, 255, 0.4);
 }
 
 .fc-card:active {
-    transform: translateY(-4px) scale(1.01);
+    transform: translateY(-6px) scale(1.02) rotateX(1deg);
 }
 
 .fc-card.flipped {
@@ -621,11 +913,13 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     letter-spacing: -0.3px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    transition: opacity 0.2s ease;
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 1;
 }
 
 .fc-card-content.hidden {
     display: none;
+    opacity: 0;
 }
 
 .fc-card-answer {
@@ -633,15 +927,18 @@ body {
     font-weight: 700;
     line-height: 1.5;
     word-break: break-word;
-    animation: fadeInScale 0.5s ease-out;
+    animation: fadeInScale 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     letter-spacing: -0.3px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    transition: opacity 0.2s ease;
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 1;
 }
 
 .fc-card-answer.hidden {
     display: none;
+    opacity: 0;
+    animation: none;
 }
 
 .fc-card-hint {
@@ -698,26 +995,36 @@ body {
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .fc-action-skip:hover {
-    background: linear-gradient(135deg, rgba(0,0,0,0.03), rgba(0,0,0,0.01));
+    background: linear-gradient(135deg, rgba(0,0,0,0.05), rgba(0,0,0,0.02));
     border-color: var(--text-secondary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.fc-action-skip:active {
+    transform: translateY(-2px) scale(0.98);
 }
 
 .fc-action-incorrect {
     background: rgba(255, 69, 58, 0.1);
     color: var(--danger);
     border: 1px solid var(--danger);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .fc-action-incorrect:hover {
     background: var(--danger);
     color: white;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 14px 40px rgba(255, 69, 58, 0.3);
+}
+
+.fc-action-incorrect:active {
+    transform: translateY(-2px) scale(0.97);
 }
 
 .fc-action-correct {
@@ -725,11 +1032,16 @@ body {
     color: white;
     border: 1px solid var(--success);
     box-shadow: var(--shadow);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .fc-action-correct:hover {
-    transform: scale(1.05) translateY(-2px);
-    box-shadow: var(--shadow-xl);
+    transform: scale(1.08) translateY(-5px);
+    box-shadow: 0 16px 50px rgba(48, 176, 192, 0.35);
+}
+
+.fc-action-correct:active {
+    transform: scale(1.04) translateY(-2px);
 }
 
 /* Navigation Controls */
@@ -760,9 +1072,10 @@ body {
 
 .fc-nav-btn:hover:not(:disabled) {
     border-color: var(--primary-color);
-    background: linear-gradient(135deg, rgba(10, 132, 255, 0.06), rgba(52, 183, 255, 0.04));
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.1), rgba(52, 183, 255, 0.06));
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 32px rgba(10, 132, 255, 0.15);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .fc-nav-btn:disabled {
@@ -938,23 +1251,23 @@ body {
 @keyframes fadeInScale {
     from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.92) translateY(10px);
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateY(0);
     }
 }
 
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-14px); }
 }
 
 @keyframes slideInUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(16px);
     }
     to {
         opacity: 1;
@@ -1046,8 +1359,8 @@ body {
 .summary-intro {
     background: linear-gradient(135deg, #F9F9F9 0%, #FFFFFF 100%);
     padding: 24px;
-    border-radius: 28px;
-    border-left: 4px solid var(--primary-color);
+    border-radius: var(--card-radius);
+    border-left: 4px solid rgba(10,132,255,0.06);
     margin-bottom: 30px;
 }
 
@@ -1061,7 +1374,7 @@ body {
     margin-bottom: 16px;
     padding: 12px;
     background: var(--bg-light);
-    border-radius: 20px;
+    border-radius: 12px;
 }
 
 .act-summary {
@@ -1074,10 +1387,10 @@ body {
 .act-box {
     background: linear-gradient(135deg, #F9F9F9 0%, #FFFFFF 100%);
     padding: 24px;
-    border-radius: 28px;
-    border-left: 4px solid var(--primary-color);
+    border-radius: var(--card-radius);
+    border-left: 4px solid rgba(10,132,255,0.06);
     box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    transition: transform var(--transition-md), box-shadow var(--transition-md);
 }
 
 .act-box:hover {
@@ -1106,10 +1419,10 @@ body {
 .character-card {
     background: linear-gradient(135deg, #F9F9F9 0%, #FFFFFF 100%);
     padding: 24px;
-    border-radius: 28px;
-    border-left: 4px solid var(--primary-color);
+    border-radius: var(--card-radius);
+    border-left: 4px solid rgba(10,132,255,0.06);
     box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    transition: transform var(--transition-md), box-shadow var(--transition-md);
 }
 
 .character-card:hover {
@@ -1139,10 +1452,10 @@ body {
 .theme-card {
     background: linear-gradient(135deg, #F9F9F9 0%, #FFFFFF 100%);
     padding: 24px;
-    border-radius: 28px;
-    border-left: 4px solid var(--secondary-color);
+    border-radius: var(--card-radius);
+    border-left: 4px solid rgba(52,183,255,0.06);
     box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    transition: transform var(--transition-md), box-shadow var(--transition-md);
 }
 
 .theme-card:hover {
@@ -1368,16 +1681,9 @@ body {
     font-size: 1.2em;
 }
 
-.learn-buttons {
+.learn-buttons,
 .flashcard-actions,
 .write-buttons {
-    display: flex;
-    gap: 16px;
-    margin-top: 32px;
-}
-.flashcard-actions,
-.write-buttons,
-.learn-buttons {
     display: flex;
     gap: 16px;
     margin-top: 32px;
@@ -1395,9 +1701,10 @@ body {
 
 /* Write Mode */
 .write-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
     margin-bottom: 32px;
     padding-bottom: 20px;
     border-bottom: 2px solid var(--border-color);
@@ -1408,6 +1715,20 @@ body {
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
+    align-self: center;
+    text-transform: none;
+    text-rendering: optimizeLegibility;
+}
+
+.write-stats-mini {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-self: end;
+}
+
+.write-header .progress-info {
+    display: none;
 }
 
 .write-prompt {
@@ -1563,13 +1884,19 @@ body {
     border-radius: var(--btn-radius);
     cursor: pointer;
     font-family: 'Inter', sans-serif;
-    transition: all 0.2s ease;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     text-align: left;
 }
 
-.test-option:hover {
+.test-option:hover:not(:disabled) {
     border-color: var(--primary-color);
-    background: rgba(0, 122, 255, 0.05);
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.1), rgba(52, 183, 255, 0.05));
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(10, 132, 255, 0.15);
+}
+
+.test-option:active:not(:disabled) {
+    transform: translateY(-1px);
 }
 
 .test-option.selected {
@@ -2000,6 +2327,31 @@ body.modal-open { overflow: hidden !important; }
     font-weight:700;
 }
 
+/* Visual panel wrapper for the choose-set area so it reads as a separate card */
+.choose-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+.choose-panel-text {
+    flex: 1;
+    text-align: center; /* center the choose set text per request */
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+/* Remove focus outlines globally (visual-only). Keep :focus-visible box-shadow rules for keyboard users. */
+*:focus {
+    outline: none !important;
+}
+
 .reading-action-buttons .btn { padding: 12px 18px; }
 .modal-panel .modal-header {
     display: flex;
@@ -2244,13 +2596,20 @@ body.modal-open { overflow: hidden !important; }
 .btn-primary:hover,
 .btn-primary:active,
 .fc-nav-shuffle:hover,
-.test-option.selected,
-.test-option:hover,
 .fc-card:hover,
 .fc-card.flipped,
 .nav-btn.active,
 .nav-btn:hover {
     color: var(--text-on-primary, #fff) !important;
+}
+
+/* Keep selected / correct / incorrect test options high-contrast (white text)
+   but don't force white on simple hover — that made light-hovered options
+   hard to read. */
+.test-option.selected,
+.test-option.correct,
+.test-option.incorrect {
+    color: #fff !important;
 }
 
 /* Subtle lift and soft shadow on hover for an Apple-like feel */
@@ -2300,4 +2659,79 @@ body.modal-open { overflow: hidden !important; }
         animation: none !important;
         transform: none !important;
     }
+}
+
+/* Remove default focus outlines for a smoother Apple-like look; rely on :focus-visible box-shadow above */
+button,
+.btn,
+.nav-btn,
+.fc-action-btn,
+.fc-mode-btn,
+.fc-nav-btn,
+.test-option {
+    outline: none;
+}
+
+/* Remove Firefox inner focus border */
+button::-moz-focus-inner,
+.btn::-moz-focus-inner {
+    border: 0;
+}
+
+/* Micro-interactions: inner gloss, pressed inset shadow, and refined timing */
+.btn::before,
+.fc-action-btn::before,
+.fc-mode-btn::before,
+.fc-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: opacity var(--transition-sm) ease, transform var(--transition-sm) ease;
+    opacity: 0;
+}
+
+/* top sheen for buttons and cards */
+.btn::before,
+.fc-action-btn::before,
+.fc-mode-btn::before {
+    background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0));
+    transform: translateY(-6px) scaleY(0.9);
+}
+
+.fc-card::before {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+}
+
+/* show sheen on hover */
+.btn:hover::before,
+.fc-action-btn:hover::before,
+.fc-mode-btn:hover::before,
+.fc-card:hover::before {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+}
+
+/* pressed inset shadow for tactile feel */
+.btn:active,
+.fc-action-btn:active,
+.fc-mode-btn:active,
+.fc-card:active {
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.06), 0 4px 12px rgba(16,24,40,0.06);
+}
+
+/* Slightly slower, buttery hover for important controls */
+.btn-primary:hover,
+.fc-action-btn.primary:hover {
+    transition-duration: var(--transition-md);
+}
+
+/* Ensure the pseudo elements don't affect layout */
+.btn,
+.fc-action-btn,
+.fc-mode-btn,
+.fc-card {
+    position: relative;
+    overflow: hidden;
 }

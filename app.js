@@ -151,6 +151,20 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupReadingGuideNav();
     initializeProgress();
+    // enforce lowercase rendering in case CSS is overridden
+    try { document.body.style.textTransform = 'lowercase'; } catch (e) { /* noop */ }
+    // AI settings modal wiring
+    const aiOpen = document.getElementById('ai-settings-open');
+    const aiModal = document.getElementById('ai-settings-modal');
+    const aiClose = document.getElementById('ai-settings-close');
+    const aiSave = document.getElementById('ai-settings-save');
+    const aiCancel = document.getElementById('ai-settings-cancel');
+    if (aiOpen) aiOpen.addEventListener('click', openAiSettings);
+    if (aiClose) aiClose.addEventListener('click', closeAiSettings);
+    if (aiCancel) aiCancel.addEventListener('click', closeAiSettings);
+    if (aiSave) aiSave.addEventListener('click', saveAiSettings);
+    // Populate modal fields from storage
+    populateAiSettingsForm();
     // Modal event listeners (setup after DOM ready)
     const mlClose = document.getElementById('learn-modal-close');
     const mlPrev = document.getElementById('ml-prev');
@@ -185,13 +199,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const fcChooseToggle = document.getElementById('fc-choose-toggle');
     if (learnChooseToggle) learnChooseToggle.addEventListener('click', () => {
         const selector = document.getElementById('learn-set-selector');
-        if (selector) selector.classList.toggle('hidden');
+        if (selector) {
+            selector.classList.toggle('hidden');
+            // toggle the button label between 'Choose set' and 'Back'
+            learnChooseToggle.textContent = selector.classList.contains('hidden') ? 'Choose set' : 'Back';
+        }
     });
     if (fcChooseToggle) fcChooseToggle.addEventListener('click', () => {
         const selector = document.getElementById('fc-mode-select');
-        if (selector) selector.classList.toggle('hidden');
+        if (selector) {
+            selector.classList.toggle('hidden');
+            // toggle the button label between 'Choose set' and 'Back'
+            fcChooseToggle.textContent = selector.classList.contains('hidden') ? 'Choose set' : 'Back';
+        }
     });
     if (cardsOverlay) cardsOverlay.addEventListener('click', (ev) => { if (ev.target === cardsOverlay) hideCardsModal(); });
+    // Close AI modal on Escape key
+    document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') {
+            const aiModalEl = document.getElementById('ai-settings-modal');
+            if (aiModalEl && !aiModalEl.classList.contains('hidden')) closeAiSettings();
+        }
+    });
 });
 
 // Navigation
@@ -215,6 +244,223 @@ function setupNavigation() {
             document.getElementById(sectionId).classList.add('active');
         });
     });
+}
+
+// ---------------- AI Settings & Helpers ----------------
+function loadAiConfig() {
+    return {
+        enabled: localStorage.getItem('aiEnabled') === 'true',
+        provider: localStorage.getItem('aiProvider') || 'qemini',
+        endpoint: localStorage.getItem('aiEndpoint') || 'https://api.qemini.ai/v1/chat/completions',
+        apiKey: localStorage.getItem('aiApiKey') || ''
+    };
+}
+
+function saveAiConfig(cfg) {
+    localStorage.setItem('aiEnabled', cfg.enabled ? 'true' : 'false');
+    localStorage.setItem('aiProvider', cfg.provider || 'qemini');
+    localStorage.setItem('aiEndpoint', cfg.endpoint || '');
+    localStorage.setItem('aiApiKey', cfg.apiKey || '');
+}
+
+function populateAiSettingsForm() {
+    const cfg = loadAiConfig();
+    const providerEl = document.getElementById('ai-provider');
+    const endpointEl = document.getElementById('ai-endpoint');
+    const keyEl = document.getElementById('ai-api-key');
+    const enabledEl = document.getElementById('ai-enabled');
+    if (providerEl) providerEl.value = cfg.provider;
+    if (endpointEl) endpointEl.value = cfg.endpoint;
+    if (keyEl) keyEl.value = cfg.apiKey;
+    if (enabledEl) enabledEl.checked = cfg.enabled;
+}
+
+function openAiSettings() {
+    const modal = document.getElementById('ai-settings-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        const panel = modal.querySelector('.modal-panel');
+        if (panel) panel.classList.add('open');
+        // prevent page scrolling while modal open
+        document.body.classList.add('modal-open');
+    }
+}
+
+function closeAiSettings() {
+    const modal = document.getElementById('ai-settings-modal');
+    if (modal) {
+        const panel = modal.querySelector('.modal-panel');
+        if (panel) panel.classList.remove('open');
+        modal.classList.add('hidden');
+    }
+    // restore scrolling
+    document.body.classList.remove('modal-open');
+    populateAiSettingsForm();
+}
+
+function saveAiSettings() {
+    const providerEl = document.getElementById('ai-provider');
+    const endpointEl = document.getElementById('ai-endpoint');
+    const keyEl = document.getElementById('ai-api-key');
+    const enabledEl = document.getElementById('ai-enabled');
+    const cfg = {
+        provider: providerEl ? providerEl.value : 'qemini',
+        endpoint: endpointEl ? endpointEl.value.trim() : '',
+        apiKey: keyEl ? keyEl.value.trim() : '',
+        enabled: enabledEl ? enabledEl.checked : false
+    };
+    saveAiConfig(cfg);
+    closeAiSettings();
+}
+
+async function aiGenerateQuestions(week, maxQuestions = 20) {
+    const cfg = loadAiConfig();
+    if (!cfg.enabled || !cfg.apiKey || !cfg.endpoint) return null;
+    // Build a short prompt asking for JSON list of {question,answer}
+    const setTitle = getSetTitle(week) || 'unknown set';
+    const prompt = `Generate up to ${maxQuestions} concise question-answer pairs for the study set titled: "${setTitle}". Return only valid JSON: an array of objects with keys \"question\" and \"answer\". Example: [{"question":"Q?","answer":"A"}, ...]. Avoid commentary.`;
+    try {
+        const body = {
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 1500,
+            temperature: 0.6
+        };
+        const resp = await fetch(cfg.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cfg.apiKey}`
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await resp.json();
+        // Try to extract JSON from common responses
+        let text = '';
+        if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+            text = data.choices[0].message.content;
+        } else if (data.choices && data.choices[0] && data.choices[0].text) {
+            text = data.choices[0].text;
+        } else if (typeof data === 'string') {
+            text = data;
+        } else if (data.output) {
+            text = JSON.stringify(data.output);
+        }
+        // Locate JSON array in text
+        const jsonStart = text.indexOf('[');
+        const jsonEnd = text.lastIndexOf(']');
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+            const raw = text.slice(jsonStart, jsonEnd + 1);
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed.map(p => ({ question: String(p.question || '').trim(), answer: String(p.answer || '').trim() }));
+        }
+        // If we didn't get parsable JSON, return null so caller falls back
+        return null;
+    } catch (err) {
+        console.warn('AI generate error', err);
+        return null;
+    }
+}
+
+async function aiCheckAnswer(userText, correctText) {
+    const cfg = loadAiConfig();
+    if (!cfg.enabled || !cfg.apiKey || !cfg.endpoint) return null;
+    const prompt = `You are a helpful grader. Given the correct answer: "${correctText}" and the student's answer: "${userText}", respond with a JSON object {"match": true|false, "confidence": 0-1} indicating whether the student's answer should be considered correct (allow for synonyms, short paraphrases, and small typos). Reply with only the JSON object.`;
+    try {
+        const body = {
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 200,
+            temperature: 0.0
+        };
+        const resp = await fetch(cfg.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cfg.apiKey}`
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await resp.json();
+        let text = '';
+        if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+            text = data.choices[0].message.content;
+        } else if (data.choices && data.choices[0] && data.choices[0].text) {
+            text = data.choices[0].text;
+        } else {
+            text = JSON.stringify(data);
+        }
+        // find first { ... } JSON in text
+        const objStart = text.indexOf('{');
+        const objEnd = text.lastIndexOf('}');
+        if (objStart !== -1 && objEnd !== -1 && objEnd > objStart) {
+            const raw = text.slice(objStart, objEnd + 1);
+            const parsed = JSON.parse(raw);
+            if (typeof parsed.match === 'boolean') return { match: parsed.match, confidence: parsed.confidence || (parsed.match ? 0.9 : 0.1) };
+        }
+        return null;
+    } catch (err) {
+        console.warn('AI check error', err);
+        return null;
+    }
+}
+
+// AI-based distractor generation: ask the model to produce plausible wrong options
+async function aiGenerateDistractors(correctAnswer, questionText, contextQuestions = [], num = 3) {
+    const cfg = loadAiConfig();
+    if (!cfg.enabled || !cfg.apiKey || !cfg.endpoint) return null;
+    try {
+        // Build a short context snippet from up to 3 other Q/A pairs to help the model stay on-topic
+        const ctxExamples = (Array.isArray(contextQuestions) ? contextQuestions.filter(q => q && q.question && q.answer) : [])
+            .slice(0, 3)
+            .map(q => `Q: ${String(q.question).trim()}\nA: ${String(q.answer).trim()}`)
+            .join('\n---\n');
+
+        const prompt = `You are a question-distractor generator. Here is the question and correct answer:\n` +
+            `Question: "${String(questionText).trim()}"\nCorrect answer: "${String(correctAnswer).trim()}"\n` +
+            (ctxExamples ? `\nHere are a few related Q/A examples to keep the style consistent:\n${ctxExamples}\n` : '') +
+            `\nProvide ${num} plausible multiple-choice wrong answers (distractors) as a JSON array of strings. ` +
+            `Include at least one opposite/antonym when applicable, one common misconception that a student might reasonably choose, and one generic but plausible incorrect option. ` +
+            `Do NOT include the correct answer; keep each option concise (preferably under 8 words). Return ONLY a JSON array like ["opt1","opt2",...].`;
+
+        const body = {
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 400,
+            temperature: 0.7
+        };
+        const resp = await fetch(cfg.endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cfg.apiKey}`
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await resp.json();
+        let text = '';
+        if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+            text = data.choices[0].message.content;
+        } else if (data.choices && data.choices[0] && data.choices[0].text) {
+            text = data.choices[0].text;
+        } else if (typeof data === 'string') {
+            text = data;
+        } else if (data.output) {
+            text = JSON.stringify(data.output);
+        }
+        // Extract first JSON array
+        const jsonStart = text.indexOf('[');
+        const jsonEnd = text.lastIndexOf(']');
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+            const raw = text.slice(jsonStart, jsonEnd + 1);
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed.map(p => String(p).trim()).filter(Boolean);
+        }
+        return null;
+    } catch (err) {
+        console.warn('aiGenerateDistractors error', err);
+        return null;
+    }
 }
 
 function setActiveSection(sectionId) {
@@ -267,7 +513,15 @@ window.startLearnMode = function(week) {
     currentQuestionIndex = 0;
     currentQuestions = getQuestionsForWeek(week);
     setActiveSection('learn');
+    // mark random sets for visual tweaks
+    const learnSection = document.getElementById('learn');
+    if (learnSection) {
+        if (week === 'all') learnSection.classList.add('random-set'); else learnSection.classList.remove('random-set');
+    }
     document.getElementById('learn-set-selector').classList.add('hidden');
+    // ensure the choose toggle resets to default label
+    const learnToggle = document.getElementById('learn-choose-toggle');
+    if (learnToggle) learnToggle.textContent = 'Choose set';
     document.getElementById('learn-mode-active').classList.remove('hidden');
     renderLearnMode();
 };
@@ -302,7 +556,7 @@ function updateLearnProgress() {
     document.getElementById('learn-progress-bar').style.width = progressPercent + '%';
     
     document.getElementById('learn-question').textContent = q.question;
-    document.getElementById('learn-answer').textContent = q.answer;
+    document.getElementById('learn-answer').textContent = String(q.answer).toLowerCase();
     
     document.getElementById('learn-prev-btn').disabled = currentQuestionIndex === 0;
     document.getElementById('learn-next-btn').disabled = currentQuestionIndex === currentQuestions.length - 1;
@@ -317,7 +571,15 @@ window.startFlashcards = function(week) {
     studyStats.correct = 0;
     studyStats.total = 0;
     setActiveSection('flashcards');
+    // mark random sets for visual tweaks
+    const fcSection = document.getElementById('flashcards');
+    if (fcSection) {
+        if (week === 'all') fcSection.classList.add('random-set'); else fcSection.classList.remove('random-set');
+    }
     document.getElementById('fc-mode-select').classList.add('hidden');
+    // reset choose-toggle label if present
+    const fcToggle = document.getElementById('fc-choose-toggle');
+    if (fcToggle) fcToggle.textContent = 'Choose set';
     document.getElementById('fc-study-mode').classList.remove('hidden');
     document.getElementById('fc-results').classList.add('hidden');
     document.getElementById('fc-results').classList.remove('active');
@@ -328,6 +590,8 @@ window.startFlashcards = function(week) {
 function renderFlashcards() {
     const title = getSetTitle(currentWeek);
     document.getElementById('fc-set-title').textContent = title;
+    // If the set is random, show 'random' but display it in lowercase as required
+    // (getSetTitle already returns lowercase)
     document.getElementById('fc-card-count').textContent = `${currentQuestions.length} cards`;
     
     // Set up flashcard click handler for flip
@@ -428,7 +692,7 @@ function updateFlashcardDisplay() {
     
     // Update card content
     document.getElementById('flashcard-text').textContent = q.question;
-    document.getElementById('flashcard-answer-text').textContent = q.answer;
+    document.getElementById('flashcard-answer-text').textContent = String(q.answer).toLowerCase();
     
     // Reset card state - show question, hide answer
     const card = document.getElementById('flashcard-display');
@@ -497,20 +761,44 @@ function showFlashcardResults() {
 }
 
 // ===== WRITE MODE =====
-window.startWriteMode = function(week) {
+window.startWriteMode = async function(week) {
     currentMode = 'write';
     currentWeek = week;
     currentQuestionIndex = 0;
-    currentQuestions = getQuestionsForWeek(week).slice().sort(() => Math.random() - 0.5);
     studyStats.correct = 0;
     studyStats.total = 0;
     setActiveSection('write');
+    // mark random sets for visual tweaks
+    const wSection = document.getElementById('write');
+    if (wSection) {
+        if (week === 'all') wSection.classList.add('random-set'); else wSection.classList.remove('random-set');
+    }
     // Hide the selector and show the active write mode area
     const selector = document.getElementById('write-mode-select');
     const active = document.getElementById('write-study-mode');
     if (selector && active) {
         selector.classList.add('hidden');
         active.classList.remove('hidden');
+    }
+    // If AI is enabled, try to generate questions from the AI; otherwise use the local pool
+    const cfg = loadAiConfig();
+    if (cfg.enabled && cfg.apiKey && cfg.endpoint) {
+        const qEl = document.getElementById('write-question');
+        const inputEl = document.getElementById('write-input');
+        const submitBtn = document.getElementById('write-submit-btn');
+        if (qEl) qEl.textContent = 'Generating questions using AI — please wait...';
+        if (inputEl) { inputEl.disabled = true; }
+        if (submitBtn) { submitBtn.disabled = true; }
+        const aiQs = await aiGenerateQuestions(week, 20);
+        if (Array.isArray(aiQs) && aiQs.length > 0) {
+            currentQuestions = aiQs.slice().sort(() => Math.random() - 0.5);
+        } else {
+            currentQuestions = getQuestionsForWeek(week).slice().sort(() => Math.random() - 0.5);
+        }
+        if (inputEl) { inputEl.disabled = false; }
+        if (submitBtn) { submitBtn.disabled = false; }
+    } else {
+        currentQuestions = getQuestionsForWeek(week).slice().sort(() => Math.random() - 0.5);
     }
     renderWriteMode();
 };
@@ -540,64 +828,102 @@ function renderWriteMode() {
     const backBtn = document.getElementById('write-back-btn');
     if (backBtn) {
         backBtn.onclick = () => {
+            // Hide the write active area and return to the Study Sets view
             const selector = document.getElementById('write-mode-select');
             const active = document.getElementById('write-study-mode');
-            if (selector && active) {
-                selector.classList.remove('hidden');
-                active.classList.add('hidden');
-            }
+            if (selector) selector.classList.remove('hidden');
+            if (active) active.classList.add('hidden');
+            setActiveSection('study');
         };
     }
 }
 
 function updateWriteDisplay() {
+    // Guard against missing question set
+    if (!currentQuestions || currentQuestions.length === 0) {
+        const qEmpty = document.getElementById('write-question');
+        if (qEmpty) qEmpty.textContent = 'No questions available for this set.';
+        const inputEl = document.getElementById('write-input');
+        if (inputEl) inputEl.disabled = true;
+        return;
+    }
+
     const q = currentQuestions[currentQuestionIndex];
     const progress = `${currentQuestionIndex + 1}/${currentQuestions.length}`;
     const progressPercent = ((currentQuestionIndex + 1) / currentQuestions.length * 100).toFixed(0);
-    
-    document.getElementById('write-progress').textContent = progress;
-    document.getElementById('write-progress-bar').style.width = progressPercent + '%';
-    document.getElementById('write-question').textContent = q.question;
-    document.getElementById('write-input').value = '';
-    document.getElementById('write-feedback').classList.add('hidden');
-    document.getElementById('write-input').focus();
+
+    const progTextEl = document.getElementById('write-progress');
+    if (progTextEl) progTextEl.textContent = progress;
+    const progBarEl = document.getElementById('write-progress-bar');
+    if (progBarEl) progBarEl.style.width = progressPercent + '%';
+
+    const qEl = document.getElementById('write-question');
+    if (qEl) qEl.textContent = q.question;
+    const inputEl = document.getElementById('write-input');
+    if (inputEl) {
+        inputEl.value = '';
+        inputEl.disabled = false;
+        inputEl.focus();
+    }
+
+    const feedbackEl = document.getElementById('write-feedback');
+    if (feedbackEl) feedbackEl.classList.add('hidden');
+
+    // Update mini stats if present
+    const correctEl = document.getElementById('write-correct-count');
+    const totalEl = document.getElementById('write-total-count');
+    if (correctEl) correctEl.textContent = studyStats.correct || 0;
+    if (totalEl) totalEl.textContent = studyStats.total || 0;
 }
 
-function checkWriteAnswer() {
-    const input = document.getElementById('write-input').value.trim().toLowerCase();
-    const correct = currentQuestions[currentQuestionIndex].answer.toLowerCase();
+async function checkWriteAnswer() {
+    const input = document.getElementById('write-input').value.trim();
+    const correct = currentQuestions[currentQuestionIndex].answer;
     const feedback = document.getElementById('write-feedback');
-    
-    let isCorrect = false;
-    if (input === correct) {
-        isCorrect = true;
-    } else {
-        const inputWords = input.split(' ');
-        const correctWords = correct.split(' ');
-        const matchCount = inputWords.filter(w => correctWords.includes(w)).length;
-        if (matchCount >= Math.ceil(correctWords.length * 0.7)) {
-            isCorrect = true;
+
+    // If AI grading is enabled try calling the AI grader first
+    let aiResult = null;
+    const cfg = loadAiConfig();
+    if (cfg.enabled && cfg.apiKey && cfg.endpoint) {
+        // show checking state
+        if (feedback) {
+            feedback.classList.remove('incorrect');
+            feedback.classList.remove('hidden');
+            feedback.textContent = 'Checking answer with AI...';
         }
+        aiResult = await aiCheckAnswer(input, correct).catch(e => { console.warn('aiCheckAnswer failed', e); return null; });
     }
-    
+
+    let isCorrect = false;
+    if (aiResult && typeof aiResult.match === 'boolean') {
+        isCorrect = aiResult.match;
+    } else {
+        // Fallback to local heuristic
+        isCorrect = isAnswerMatch(input, correct);
+    }
+
     if (isCorrect) {
-        feedback.classList.remove('incorrect');
-        feedback.innerHTML = `<strong>✓ Correct!</strong> "${currentQuestions[currentQuestionIndex].answer}"`;
+        if (feedback) {
+            feedback.classList.remove('incorrect');
+            feedback.innerHTML = `<strong>✓ Correct!</strong> "${String(currentQuestions[currentQuestionIndex].answer).toLowerCase()}"`;
+        }
         studyStats.correct++;
         learnedTerms[currentQuestions[currentQuestionIndex].question] = true;
     } else {
-        feedback.classList.add('incorrect');
-        feedback.innerHTML = `<strong>✗ Not quite.</strong> The answer is: "${currentQuestions[currentQuestionIndex].answer}"`;
+        if (feedback) {
+            feedback.classList.add('incorrect');
+            feedback.innerHTML = `<strong>✗ Not quite.</strong> The answer is: "${String(currentQuestions[currentQuestionIndex].answer).toLowerCase()}"`;
+        }
     }
-    
-    feedback.classList.remove('hidden');
+
+    if (feedback) feedback.classList.remove('hidden');
     studyStats.total++;
-    
+
     // Auto-hide feedback and advance after 3 seconds
     setTimeout(() => {
-        feedback.classList.add('hidden');
+        if (feedback) feedback.classList.add('hidden');
     }, 3000);
-    
+
     setTimeout(() => {
         currentQuestionIndex++;
         if (currentQuestionIndex < currentQuestions.length) {
@@ -631,46 +957,117 @@ function showWriteResults() {
 
 // ===== TEST MODE =====
 window.startTestMode = function(week) {
-    currentMode = 'test';
-    currentWeek = week;
-    currentQuestionIndex = 0;
-    studyStats.correct = 0;
-    studyStats.total = 0;
-    if (week === 'all') {
-        currentQuestions = [...Object.values(vocabularyData).flat(), ...plotQuestions].sort(() => Math.random() - 0.5);
-    } else {
-        currentQuestions = getQuestionsForWeek(week).sort(() => Math.random() - 0.5);
-    }
-    setActiveSection('test');
-    document.getElementById('test-mode-select').classList.add('hidden');
-    document.getElementById('test-content').classList.remove('hidden');
-    document.getElementById('test-results').classList.add('hidden');
-    const title = week === 'all' ? 'Full Exam' : getSetTitle(week);
-    document.getElementById('test-title').textContent = title;
-    renderTestQuestion();
+    (async () => {
+        currentMode = 'test';
+        currentWeek = week;
+        currentQuestionIndex = 0;
+        studyStats.correct = 0;
+        studyStats.total = 0;
+        setActiveSection('test');
+        // Try AI generation first when enabled
+        const cfg = loadAiConfig();
+        if (cfg.enabled && cfg.apiKey && cfg.endpoint) {
+            const aiQs = await aiGenerateQuestions(week, 30);
+            if (Array.isArray(aiQs) && aiQs.length > 0) {
+                currentQuestions = aiQs.slice().sort(() => Math.random() - 0.5);
+            } else {
+                if (week === 'all') {
+                    currentQuestions = [...Object.values(vocabularyData).flat(), ...plotQuestions].sort(() => Math.random() - 0.5);
+                } else {
+                    currentQuestions = getQuestionsForWeek(week).sort(() => Math.random() - 0.5);
+                }
+            }
+        } else {
+            if (week === 'all') {
+                currentQuestions = [...Object.values(vocabularyData).flat(), ...plotQuestions].sort(() => Math.random() - 0.5);
+            } else {
+                currentQuestions = getQuestionsForWeek(week).sort(() => Math.random() - 0.5);
+            }
+        }
+        // mark random sets for visual tweaks
+        const tSection = document.getElementById('test');
+        if (tSection) {
+            if (week === 'all') tSection.classList.add('random-set'); else tSection.classList.remove('random-set');
+        }
+        document.getElementById('test-mode-select').classList.add('hidden');
+        document.getElementById('test-content').classList.remove('hidden');
+        document.getElementById('test-results').classList.add('hidden');
+        // use normalized, lowercase titles (getSetTitle handles 'all' -> 'random')
+        document.getElementById('test-title').textContent = getSetTitle(week);
+        renderTestQuestion();
+    })();
+    // mark random sets for visual tweaks
 };
 
-function renderTestQuestion() {
+async function renderTestQuestion() {
     const q = currentQuestions[currentQuestionIndex];
     const progress = `Question ${currentQuestionIndex + 1}/${currentQuestions.length}`;
-    
     document.getElementById('test-question').innerHTML = `
         <div style="font-size: 1.2em; font-weight: 600; margin-bottom: 10px;">${progress}</div>
-        <div style="font-size: 1.1em;">${q.question}</div>
+        <div style="font-size: 1.1em;">${String(q.question).toLowerCase()}</div>
     `;
-    
-    const answers = generateAnswerOptions(q.answer);
+
     const optionsDiv = document.getElementById('test-options');
     optionsDiv.innerHTML = '';
-    
+    // temporary loading state
+    const loading = document.createElement('div');
+    loading.className = 'test-option';
+    loading.textContent = 'generating options...';
+    loading.style.opacity = '0.8';
+    optionsDiv.appendChild(loading);
+
+    // Require AI distractors. If AI is not configured, show an actionable message.
+    const cfg = loadAiConfig();
+    let answers = null;
+    if (!cfg.enabled || !cfg.apiKey || !cfg.endpoint) {
+        optionsDiv.innerHTML = '';
+        const info = document.createElement('div');
+        info.className = 'test-option';
+        info.textContent = 'AI is required for this test mode. Open AI settings to enable.';
+        const settingsBtn = document.createElement('button');
+        settingsBtn.className = 'btn btn-secondary';
+        settingsBtn.textContent = 'Open AI Settings';
+        settingsBtn.onclick = openAiSettings;
+        optionsDiv.appendChild(info);
+        optionsDiv.appendChild(settingsBtn);
+        return;
+    }
+
+    const aiDistractors = await aiGenerateDistractors(q.answer, q.question, currentQuestions, 3).catch(() => null);
+    if (Array.isArray(aiDistractors) && aiDistractors.length >= 1) {
+        const set = [String(q.answer).trim(), ...aiDistractors.slice(0, 3)];
+        answers = set.map(s => String(s).toLowerCase()).filter(Boolean);
+        for (let i = answers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [answers[i], answers[j]] = [answers[j], answers[i]];
+        }
+        answers = answers.slice(0, 4);
+    } else {
+        // AI was configured but did not return valid distractors
+        optionsDiv.innerHTML = '';
+        const err = document.createElement('div');
+        err.className = 'test-option';
+        err.textContent = 'AI failed to generate options. Open AI settings or try again.';
+        const settingsBtn = document.createElement('button');
+        settingsBtn.className = 'btn btn-secondary';
+        settingsBtn.textContent = 'Open AI Settings';
+        settingsBtn.onclick = openAiSettings;
+        optionsDiv.appendChild(err);
+        optionsDiv.appendChild(settingsBtn);
+        return;
+    }
+
+    // render
+    optionsDiv.innerHTML = '';
     answers.forEach((answer) => {
         const btn = document.createElement('button');
         btn.className = 'test-option';
-        btn.textContent = answer;
+        btn.textContent = String(answer).toLowerCase();
+        btn.dataset.value = String(answer);
         btn.onclick = () => selectTestAnswer(btn, answer, q.answer, answers);
         optionsDiv.appendChild(btn);
     });
-    
+
     document.getElementById('test-prev-btn').disabled = currentQuestionIndex === 0;
     document.getElementById('test-prev-btn').onclick = () => {
         if (currentQuestionIndex > 0) {
@@ -683,35 +1080,223 @@ function renderTestQuestion() {
 function selectTestAnswer(btn, selected, correct, allAnswers) {
     const allBtns = document.querySelectorAll('.test-option');
     allBtns.forEach(b => b.disabled = true);
-    
+
     btn.classList.add('selected');
-    
-    if (selected === correct) {
+
+    const selNorm = normalizeTextForCompare(selected);
+    const corrNorm = normalizeTextForCompare(correct);
+
+    const matched = isAnswerMatch(selected, correct) || selNorm === corrNorm;
+
+    if (matched) {
         btn.classList.remove('selected');
         btn.classList.add('correct');
         studyStats.correct++;
     } else {
         btn.classList.remove('selected');
         btn.classList.add('incorrect');
+        // mark the correct button if present
         allBtns.forEach(b => {
-            if (b.textContent === correct) {
+            if (normalizeTextForCompare(b.textContent) === corrNorm) {
                 b.classList.add('correct');
             }
         });
     }
-    
+
     studyStats.total++;
+    // Auto-advance to next question after a short delay so the user sees feedback
+    setTimeout(() => {
+        if (currentQuestionIndex < currentQuestions.length - 1) {
+            currentQuestionIndex++;
+            renderTestQuestion();
+        } else {
+            // finished all questions
+            showTestResults();
+        }
+    }, 600);
+}
+
+function showTestResults() {
+    const accuracy = Math.round((studyStats.correct / studyStats.total) * 100) || 0;
+    document.getElementById('test-content').classList.add('hidden');
+    document.getElementById('test-results').classList.remove('hidden');
+    document.getElementById('results-score').innerHTML = `
+        <div style="font-size: 2.5em; font-weight: 700; color: #007AFF; margin: 20px 0;">
+            ${studyStats.correct}/${studyStats.total} Correct
+        </div>
+        <div style="font-size: 1.5em; margin: 20px 0;">
+            Score: ${accuracy}%
+        </div>
+    `;
+    document.getElementById('test-retake-btn').onclick = () => {
+        studyStats.correct = 0;
+        studyStats.total = 0;
+        document.getElementById('test-results').classList.add('hidden');
+        document.getElementById('test-mode-select').classList.remove('hidden');
+        document.getElementById('test-content').classList.add('hidden');
+    };
+    updateProgressDisplay();
 }
 
 function generateAnswerOptions(correctAnswer) {
-    const answers = [correctAnswer];
-    const distractors = [
-        'incorrect answer one',
-        'a common misconception',
-        'a partially related concept'
-    ];
-    answers.push(...distractors);
-    return answers.sort(() => Math.random() - 0.5);
+    // New distractor strategy:
+    // - correct answer (keep)
+    // - opposite/antonym option when possible (e.g., left <-> right)
+    // - a common misconception sampled from the pool (shares words but wrong)
+    // - a generic incorrect option
+    const cleanCorrect = String(correctAnswer || '').trim();
+    const pool = [];
+    if (Array.isArray(currentQuestions) && currentQuestions.length > 0) {
+        currentQuestions.forEach(q => {
+            if (q.answer && String(q.answer).trim().toLowerCase() !== cleanCorrect.toLowerCase()) pool.push(String(q.answer).trim());
+        });
+    }
+    if (pool.length < 3) {
+        plotQuestions.forEach(q => { if (q.answer && String(q.answer).trim().toLowerCase() !== cleanCorrect.toLowerCase()) pool.push(String(q.answer).trim()); });
+        Object.values(vocabularyData).flat().forEach(q => { if (q.answer && String(q.answer).trim().toLowerCase() !== cleanCorrect.toLowerCase()) pool.push(String(q.answer).trim()); });
+    }
+
+    // Helper: pick random element(s)
+    function pick(arr) { if (!arr || arr.length === 0) return null; return arr[Math.floor(Math.random() * arr.length)]; }
+
+    // Try to produce an 'opposite' answer by simple antonym replacement
+    function makeOpposite(text) {
+        if (!text) return null;
+        const lower = text.toLowerCase();
+        const map = {
+            'left': 'right', 'right': 'left',
+            'increase': 'decrease', 'decrease': 'increase',
+            'ventricle': 'atrium', 'atrium': 'ventricle',
+            'superior': 'inferior', 'inferior': 'superior',
+            'present': 'absent', 'absent': 'present',
+            'in': 'out', 'inside': 'outside', 'outside': 'inside',
+            'vulgar': 'polite', 'rude': 'polite', 'offensive': 'inoffensive',
+            'immoral': 'moral', 'impetuous': 'patient', 'inevitable': 'avoidable',
+            'right': 'left', 'anterior': 'posterior', 'posterior': 'anterior',
+        };
+        let changed = lower;
+        Object.keys(map).forEach(k => {
+            const re = new RegExp('\\b' + k + '\\b', 'gi');
+            if (re.test(changed)) changed = changed.replace(re, map[k]);
+        });
+        // if changed equals original (no antonym found) return a negation
+        if (changed === lower) {
+            // simple negation phrasing
+            return `not ${text}`;
+        }
+        return changed;
+    }
+
+    // Find a 'misconception' candidate: pick a pool item that shares at least one token
+    function findMisconception(correct, arr) {
+        const tokens = new Set(normalizeTextForCompare(correct).split(' ').filter(Boolean));
+        // prefer candidates that share tokens
+        const shared = arr.filter(a => {
+            const atoks = normalizeTextForCompare(a).split(' ').filter(Boolean);
+            return atoks.some(t => tokens.has(t));
+        });
+        // if shared candidates exist, pick the one with smallest edit distance to the correct answer
+        const candidates = (shared.length > 0 ? shared : arr).map(a => ({
+            text: a,
+            dist: levenshtein(normalizeTextForCompare(a), normalizeTextForCompare(correct))
+        })).sort((x, y) => x.dist - y.dist);
+        return candidates.length ? candidates[0].text : null;
+    }
+
+    const options = [];
+    options.push(cleanCorrect);
+
+    const opposite = makeOpposite(cleanCorrect);
+    if (opposite && opposite.toLowerCase() !== cleanCorrect.toLowerCase()) options.push(opposite);
+
+    const misconception = findMisconception(cleanCorrect, pool);
+    if (misconception && !options.includes(misconception)) options.push(misconception);
+
+    // generic incorrect fallback
+    const generic = pick(pool) || 'an incorrect option';
+    if (!options.includes(generic)) options.push(generic);
+
+    // Ensure we have exactly 4 options: pad with generic phrases if needed
+    const fallbacks = ['a common misconception', 'a related but wrong idea', 'an incorrect option'];
+    for (let f of fallbacks) {
+        if (options.length >= 4) break;
+        if (!options.includes(f)) options.push(f);
+    }
+
+    // normalize to lowercase for display and shuffle
+    const out = options.map(s => String(s).toLowerCase());
+    for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out.slice(0, 4);
+}
+
+// --- Lightweight AI-ish helpers for answer matching ---
+function normalizeTextForCompare(s) {
+    if (!s && s !== 0) return '';
+    return String(s).toLowerCase().replace(/[\u2018\u2019\u201c\u201d]/g, "'").replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function levenshtein(a, b) {
+    // simple iterative Levenshtein implementation
+    const A = String(a || '');
+    const B = String(b || '');
+    const m = A.length;
+    const n = B.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    let prev = new Array(n + 1);
+    for (let j = 0; j <= n; j++) prev[j] = j;
+    for (let i = 1; i <= m; i++) {
+        let cur = [i];
+        for (let j = 1; j <= n; j++) {
+            const cost = A[i - 1] === B[j - 1] ? 0 : 1;
+            cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+        }
+        prev = cur;
+    }
+    return prev[n];
+}
+
+function isAnswerMatch(input, correct) {
+    const a = normalizeTextForCompare(input);
+    const b = normalizeTextForCompare(correct);
+    // If there is no canonical correct answer, bail
+    if (!b) return false;
+
+    // Exact match
+    if (a === b) return true;
+
+    // Prevent empty input from matching a non-empty correct answer
+    if (!a) return false;
+
+    // If one contains the other (both non-empty), accept short containment
+    if (a.length > 0 && b.length > 0) {
+        if (a.includes(b) || b.includes(a)) return true;
+    }
+
+    // Token-based similarity: compute Jaccard similarity between word sets
+    const aw = Array.from(new Set(a.split(' ').filter(Boolean)));
+    const bw = Array.from(new Set(b.split(' ').filter(Boolean)));
+    const intersection = aw.filter(w => bw.includes(w)).length;
+    const union = Math.max(1, aw.concat(bw).filter((v, i, arr) => arr.indexOf(v) === i).length);
+    const jaccard = intersection / union;
+    // Accept if reasonably similar (50%+ token overlap)
+    if (jaccard >= 0.5) return true;
+
+    // For very short expected answers, allow 1-char/1-edit tolerance
+    if (b.length <= 4) {
+        const distSmall = levenshtein(a, b);
+        if (distSmall <= 1) return true;
+    }
+
+    // Levenshtein ratio fallback for fuzzy matching on longer strings
+    const dist = levenshtein(a, b);
+    const maxLen = Math.max(a.length, b.length, 1);
+    const ratio = dist / maxLen;
+    // Accept small typo differences (<=25% of length)
+    return ratio <= 0.25;
 }
 
 // ===== PROGRESS TRACKING =====
@@ -797,14 +1382,15 @@ function updateProgressDisplay() {
 
 function getSetTitle(week) {
     const titles = {
-        1: 'Literary Terms',
-        2: 'Grammar & Metaphor',
-        3: 'Character Analysis',
-        5: 'Thematic Vocabulary',
-        6: 'Sonnets & Poetry',
-        plot: 'Plot Questions'
+        1: 'literary terms',
+        2: 'grammar & metaphor',
+        3: 'character analysis',
+        5: 'thematic vocabulary',
+        6: 'sonnets & poetry',
+        plot: 'plot questions',
+        all: 'random'
     };
-    return titles[week] || 'Unknown Set';
+    return (titles[week] || 'unknown set').toLowerCase();
 }
 
 // Reading Guide helper functions
@@ -841,27 +1427,7 @@ setInterval(() => {
 // Global test submit
 document.addEventListener('click', (e) => {
     if (e.target.id === 'test-submit-btn') {
-        const accuracy = Math.round((studyStats.correct / studyStats.total) * 100) || 0;
-        document.getElementById('test-content').classList.add('hidden');
-        document.getElementById('test-results').classList.remove('hidden');
-        document.getElementById('results-score').innerHTML = `
-            <div style="font-size: 2.5em; font-weight: 700; color: #007AFF; margin: 20px 0;">
-                ${studyStats.correct}/${studyStats.total} Correct
-            </div>
-            <div style="font-size: 1.5em; margin: 20px 0;">
-                Score: ${accuracy}%
-            </div>
-        `;
-        
-        document.getElementById('test-retake-btn').onclick = () => {
-            studyStats.correct = 0;
-            studyStats.total = 0;
-            document.getElementById('test-results').classList.add('hidden');
-            document.getElementById('test-mode-select').classList.remove('hidden');
-            document.getElementById('test-content').classList.add('hidden');
-        };
-        
-        updateProgressDisplay();
+        showTestResults();
     }
 });
 
